@@ -18,6 +18,31 @@ public final class Constants {
     public static final int kOperatorControllerPort = 1;
   }
 
+  public static class IntakeConstants {
+    public static int intakeMotionMagicExpoK_V;
+    public static int intakeMotionMagicExpoK_A;
+    public static int intakeMotionMagicAccel;
+    public static int intakeMotionMagicJerk;
+    public static int SupplyCurrentLimit = 80;
+    public static int StatorCurrentLimit = 80;
+    public static int intakeMotorID;
+    public static double intakingPosition;
+    public static double intakingSpeed;
+    public static double shootingPosition;
+    public static double retractingPos;
+    public static double[] intakePID = {0, 0, 0};
+    public static double[] intakeSVA = {0, 0, 0};
+    public enum IntakeWantedState {
+      IDLE,
+      INTAKE,
+      SHOOT, 
+      RETRACT,
+    }
+    public enum SystemState {
+      IDLING,
+      INTAKING,
+      SHOOTING,
+      RETRACTING
   public static class TurretConstants {
     public static int turretMotionMagicExpoK_V;
     public static int turretMotionMagicExpoK_A;
