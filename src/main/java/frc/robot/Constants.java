@@ -165,4 +165,90 @@ public final class Constants {
       SHOOTING
     }
   }
+  public static class LightsConstants {
+    public static Distance spacing = Meters.of(1 / 60);   // (1 / 60) - 60 leds per 1m strip [Spacing: 1m/#ofLEDs]
+    // Main LED Strip (sides)
+    public static int main_port = 0;
+    public static int main_length = 48;   // 48, 24 a side
+    public static int main_brightness = 50;
+    // Signal LED Sector (on shooter)
+    //public static int signal_port = None;
+    //public static int signal_length = 10;   // 10, 5 a side
+
+    // public static enum LightsType {
+    //     ENDGAME,
+    //     CLIMB,
+    //     SHOOTING,
+    //     INTAKE,
+    //     IDLE,
+    //     DISABLED
+    //   }
+
+    public static class Colors {
+        public static int[] RED = new int[] { 255, 0, 0 };
+        public static int[] GREEN = new int[] { 0, 255, 0 };
+        public static int[] BLUE = new int[] { 0, 0, 255 };
+        public static int[] GOLD = new int[] { 175, 184, 6 };
+        public static int[] MAGENTA = new int[] { 255, 0, 255 };
+        public static int[] BRIGHT = new int[] { 234, 255, 48 };
+      }
+
+    // RGB Color Map
+    // Not needed: use Color.k[colorname]
+    public static Map<String, Color> RGBColors = Map.of( // Color Map
+            "black", new Color(0, 0, 0),
+            "white", new Color(255, 255, 255),
+            "red", new Color(255, 0, 0),
+            "green", new Color(0, 255, 0),
+            "blue", new Color(0, 0, 255),
+            "gold", new Color(175, 184, 6),
+            "team_Gold", new Color(179, 134, 27),
+            "yellow", new Color(255, 255, 0),
+            "orange", new Color(255, 165, 0),
+            "pink", new Color(255, 20, 147),
+            "magenta", new Color(255, 0, 255),
+            "bright", new Color(234, 255, 48));
+
+    // GRB Color Map (Old LEDs)
+    public static Map<String, Color> GRBColors = Map.of(
+            "black", new Color(0, 0, 0),
+            "white", new Color(255, 255, 255),
+            "red", new Color(0, 255, 0),
+            "green", new Color(100, 0, 0),
+            "blue", new Color(0, 0, 100),
+            "team_Gold", new Color(126, 235, 44),
+            "yellow", new Color(255, 255, 0),
+            "orange", new Color(165, 255, 0),
+            "pink", new Color(20, 255, 147),
+            "magenta", new Color(0, 100, 100));
+
+    // GBR Color Map
+    public static Map<String, Color> GBRColors = Map.of(
+            "black", new Color(0, 0, 0),
+            "white", new Color(255, 255, 255),
+            "red", new Color(0, 0, 255),
+            "green", new Color(255, 0, 0),
+            "blue", new Color(0, 255, 0),
+            "team_Gold", new Color(134, 27, 179),
+            "yellow", new Color(255, 0, 255),
+            "orange", new Color(165, 0, 255),
+            "pink", new Color(20, 147, 255),
+            "magenta", new Color(0, 255, 255));
+    
+    // BRG Color Map (New LED strip)
+    public static Map<String, Color> BRGColors = Map.of(
+            "black", new Color(0, 0, 0),                 // (0,0,0) → (0,0,0)
+            "white", new Color(255, 255, 255),           // (255,255,255) → (255,255,255)
+            "red", new Color(0, 255, 0),                 // RGB(255,0,0) → BRG(0,255,0)
+            "green", new Color(0, 0, 255),               // RGB(0,255,0) → BRG(0,0,255)
+            "blue", new Color(255, 0, 0),                // RGB(0,0,255) → BRG(255,0,0)
+            "gold", new Color(6, 175, 184),              // RGB(175,184,6) → BRG(6,175,184)
+            "team_Gold", new Color(27, 179, 134),        // RGB(179,134,27) → BRG(27,179,134)
+            "yellow", new Color(0, 255, 255),            // RGB(255,255,0) → BRG(0,255,255)
+            "orange", new Color(0, 255, 165),            // RGB(255,165,0) → BRG(0,255,165)
+            "pink", new Color(147, 255, 20),             // RGB(255,20,147) → BRG(147,255,20)
+            "magenta", new Color(255, 255, 0),           // RGB(255,0,255) → BRG(255,255,0)
+            "bright", new Color(48, 234, 255)            // RGB(234,255,48) → BRG(48,234,255)
+    );
+  }
 }
