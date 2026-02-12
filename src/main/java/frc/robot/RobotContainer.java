@@ -12,7 +12,15 @@ import frc.robot.subsystems.Scoring.Shooter;
 import frc.robot.subsystems.Scoring.Turret;
 import frc.robot.subsystems.Intake.Feeder;
 import frc.robot.subsystems.Intake.Intake;
-import frc.robot.subsystems.LED.TestLights;
+
+import frc.robot.subsystems.Lights.TestLights;
+import frc.robot.subsystems.Lights.LEDSubsystem_WPIlib;
+import frc.robot.commands.Lights.WPIlib.RunPattern;
+import frc.robot.commands.Lights.WPIlib.ScrollPattern;
+import frc.robot.commands.Lights.WPIlib.SetBreathingPattern;
+import frc.robot.commands.Lights.WPIlib.SetSolidColor;
+import frc.robot.commands.Lights.WPIlib.DisableLED;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -26,7 +34,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final TestLights lights = new TestLights();
+  // private final TestLights lights = new TestLights();
+  private final LEDSubsystem_WPIlib ledSubsystemWPIlib = new LEDSubsystem_WPIlib();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driver = new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -48,9 +57,10 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    driver.b().onTrue(new InstantCommand(() -> lights.setColor(LightsConstants.Colors.MAGENTA)));
-    driver.a().onTrue(new InstantCommand(() -> lights.setColor(LightsConstants.Colors.OFF)));
-
+    // driver.b().onTrue(new InstantCommand(() -> lights.setColor(LightsConstants.Colors.MAGENTA)));
+    // driver.a().onTrue(new InstantCommand(() -> lights.setColor(LightsConstants.Colors.OFF)));
+    driver.b().onTrue(new SetSolidColor(ledSubsystemWPIlib, LightsConstants.BRGColors.get("magenta")));
+    driver.a().onTrue(new DisableLED(ledSubsystemWPIlib));
     
   }
 
