@@ -24,7 +24,29 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
   }
+  public static class LightsConstants {
+    public static int port = 0;
+    public static int length = 12;
 
+    public static enum LightsType {
+      ENDGAME,
+      CLIMB,
+      SHOOTING,
+      INTAKE,
+      IDLE,
+      DISABLED
+    }
+
+    public static class Colors {
+      public static int[] RED = new int[] { 255, 0, 0 };
+      public static int[] GREEN = new int[] { 0, 255, 0 };
+      public static int[] BLUE = new int[] { 0, 0, 255 };
+      public static int[] GOLD = new int[] { 175, 184, 6 };
+      public static int[] MAGENTA = new int[] { 255, 0, 255 };
+      public static int[] BRIGHT = new int[] { 234, 255, 48 };
+      public static int[] OFF = new int[] {0, 0, 0};
+    }
+  }
   public static class ShooterConstants {
     public static double activeWaitingSpeed;
     public static double inactiveWaitingSpeed;
@@ -60,6 +82,9 @@ public final class Constants {
       INACTIVE_WAITING,
       PASS_SHOOTING,
       HUB_SHOOTING
+    }
+  }
+
   public static class IntakeConstants {
     public static int intakeMotionMagicExpoK_V;
     public static int intakeMotionMagicExpoK_A;
@@ -85,6 +110,8 @@ public final class Constants {
       INTAKING,
       SHOOTING,
       RETRACTING
+    }
+  }  
   public static class TurretConstants {
     public static int turretMotionMagicExpoK_V;
     public static int turretMotionMagicExpoK_A;
