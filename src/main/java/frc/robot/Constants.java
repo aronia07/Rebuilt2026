@@ -19,6 +19,13 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.util.PolynomialRegression;
+// Lights
+import java.util.Map;
+import static edu.wpi.first.units.Units.Meters;
+// import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Distance;
+// import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.util.Color;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -34,29 +41,7 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
   }
-  public static class LightsConstants {
-    public static int port = 0;
-    public static int length = 12;
 
-    public static enum LightsType {
-      ENDGAME,
-      CLIMB,
-      SHOOTING,
-      INTAKE,
-      IDLE,
-      DISABLED
-    }
-
-    public static class Colors {
-      public static int[] RED = new int[] { 255, 0, 0 };
-      public static int[] GREEN = new int[] { 0, 255, 0 };
-      public static int[] BLUE = new int[] { 0, 0, 255 };
-      public static int[] GOLD = new int[] { 175, 184, 6 };
-      public static int[] MAGENTA = new int[] { 255, 0, 255 };
-      public static int[] BRIGHT = new int[] { 234, 255, 48 };
-      public static int[] OFF = new int[] {0, 0, 0};
-    }
-  }
   public static class ShooterConstants {
     public static double activeWaitingSpeed;
     public static double inactiveWaitingSpeed;
@@ -175,6 +160,94 @@ public final class Constants {
       SHOOTING
     }
   }
+  public static class LightsConstants {
+    public static Distance spacing = Meters.of(1 / 60);   // (1 / 60) - 60 leds per 1m strip [Spacing: 1m/#ofLEDs]
+    // Main LED Strip (sides)
+    public static int main_port = 0;
+    public static int main_length = 48;   // 48, 24 a side
+    public static int main_brightness = 50;
+    // Signal LED Sector (on shooter)
+    //public static int signal_port = None;
+    //public static int signal_length = 10;   // 10, 5 a side
+
+    public static enum LightsType {
+        ENDGAME,
+        CLIMB,
+        SHOOTING,
+        INTAKE,
+        IDLE,
+        DISABLED
+      }
+
+    public static class Colors {
+        public static int[] RED = new int[] { 255, 0, 0 };
+        public static int[] GREEN = new int[] { 0, 255, 0 };
+        public static int[] BLUE = new int[] { 0, 0, 255 };
+        public static int[] GOLD = new int[] { 175, 184, 6 };
+        public static int[] MAGENTA = new int[] { 255, 0, 255 };
+        public static int[] BRIGHT = new int[] { 234, 255, 48 };
+      }
+
+    // RGB Color Map
+    // Not needed: use Color.k[colorname]
+    public static Map<String, Color> RGBColors = Map.ofEntries(
+        Map.entry("black", new Color(0, 0, 0)),
+        Map.entry("white", new Color(255, 255, 255)),
+        Map.entry("red", new Color(255, 0, 0)),
+        Map.entry("green", new Color(0, 255, 0)),
+        Map.entry("blue", new Color(0, 0, 255)),
+        Map.entry("gold", new Color(175, 184, 6)),
+        Map.entry("team_Gold", new Color(179, 134, 27)),
+        Map.entry("yellow", new Color(255, 255, 0)),
+        Map.entry("orange", new Color(255, 165, 0)),
+        Map.entry("pink", new Color(255, 20, 147)),
+        Map.entry("magenta", new Color(255, 0, 255)),
+        Map.entry("bright", new Color(234, 255, 48)));
+
+    // GRB Color Map (Old LEDs)
+    public static Map<String, Color> GRBColors = Map.ofEntries(
+        Map.entry("black", new Color(0, 0, 0)),
+        Map.entry("white", new Color(255, 255, 255)),
+        Map.entry("red", new Color(0, 255, 0)),
+        Map.entry("green", new Color(255, 0, 0)),
+        Map.entry("blue", new Color(0, 0, 255)),
+        Map.entry("gold", new Color(184, 175, 6)),
+        Map.entry("team_Gold", new Color(134, 179, 27)),
+        Map.entry("yellow", new Color(255, 255, 0)),
+        Map.entry("orange", new Color(165, 255, 0)),
+        Map.entry("pink", new Color(20, 255, 147)),
+        Map.entry("magenta", new Color(0, 255, 255)),
+        Map.entry("bright", new Color(255, 234, 48)));
+
+    // GBR Color Map
+    public static Map<String, Color> GBRColors = Map.ofEntries(
+        Map.entry("black", new Color(0, 0, 0)),
+        Map.entry("white", new Color(255, 255, 255)),
+        Map.entry("red", new Color(0, 0, 255)),
+        Map.entry("green", new Color(255, 0, 0)),
+        Map.entry("blue", new Color(0, 255, 0)),
+        Map.entry("gold", new Color(184, 6, 175)),
+        Map.entry("team_Gold", new Color(134, 27, 179)),
+        Map.entry("yellow", new Color(255, 0, 255)),
+        Map.entry("orange", new Color(165, 0, 255)),
+        Map.entry("pink", new Color(20, 147, 255)),
+        Map.entry("magenta", new Color(0, 255, 255)),
+        Map.entry("bright", new Color(255, 48, 234)));
+
+    // BRG Color Map (New LED strip)
+    public static Map<String, Color> BRGColors = Map.ofEntries(
+        Map.entry("black", new Color(0, 0, 0)),                 // (0,0,0) → (0,0,0)
+        Map.entry("white", new Color(255, 255, 255)),           // (255,255,255) → (255,255,255)
+        Map.entry("red", new Color(0, 255, 0)),                 // RGB(255,0,0) → BRG(0,255,0)
+        Map.entry("green", new Color(0, 0, 255)),               // RGB(0,255,0) → BRG(0,0,255)
+        Map.entry("blue", new Color(255, 0, 0)),                // RGB(0,0,255) → BRG(255,0,0)
+        Map.entry("gold", new Color(6, 175, 184)),              // RGB(175,184,6) → BRG(6,175,184)
+        Map.entry("team_Gold", new Color(27, 179, 134)),        // RGB(179,134,27) → BRG(27,179,134)
+        Map.entry("yellow", new Color(0, 255, 255)),            // RGB(255,255,0) → BRG(0,255,255)
+        Map.entry("orange", new Color(0, 255, 165)),            // RGB(255,165,0) → BRG(0,255,165)
+        Map.entry("pink", new Color(147, 255, 20)),             // RGB(255,20,147) → BRG(147,255,20)
+        Map.entry("magenta", new Color(255, 255, 0)),           // RGB(255,0,255) → BRG(255,255,0)
+        Map.entry("bright", new Color(48, 234, 255)));          // RGB(234,255,48) → BRG(48,234,255)
 
   public static class VisionConstants {
     public static double bumperToBumper = 34.050; // inches

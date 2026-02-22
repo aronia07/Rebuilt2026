@@ -14,6 +14,15 @@ import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Drive.TunerConstants;
 import frc.robot.subsystems.Intake.Feeder;
 import frc.robot.subsystems.Intake.Intake;
+
+import frc.robot.subsystems.Lights.TestLights;
+import frc.robot.subsystems.Lights.LEDSubsystem_WPIlib;
+import frc.robot.commands.Lights.WPIlib.RunPattern;
+import frc.robot.commands.Lights.WPIlib.ScrollPattern;
+import frc.robot.commands.Lights.WPIlib.SetBreathingPattern;
+import frc.robot.commands.Lights.WPIlib.SetSolidColor;
+import frc.robot.commands.Lights.WPIlib.DisableLED;
+
 import frc.robot.subsystems.LED.TestLights;
 
 import static edu.wpi.first.units.Units.Meter;
@@ -40,7 +49,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final TestLights lights = new TestLights();
+  // private final TestLights lights = new TestLights();
+  private final LEDSubsystem_WPIlib ledSubsystemWPIlib = new LEDSubsystem_WPIlib();
 
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -75,6 +85,10 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    // driver.b().onTrue(new InstantCommand(() -> lights.setColor(LightsConstants.Colors.MAGENTA)));
+    // driver.a().onTrue(new InstantCommand(() -> lights.setColor(LightsConstants.Colors.OFF)));
+    driver.b().onTrue(new SetSolidColor(ledSubsystemWPIlib, LightsConstants.BRGColors.get("magenta")));
+    driver.a().onTrue(new DisableLED(ledSubsystemWPIlib));
     // Note that X is defined as forward according to WPILib convention,
     // and Y is defined as to the left according to WPILib convention.
     drivetrain.setDefaultCommand(
