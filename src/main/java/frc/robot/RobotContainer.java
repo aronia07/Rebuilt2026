@@ -8,6 +8,8 @@ import frc.robot.Constants.LightsConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.FeederConstants.FeederWantedState;
 import frc.robot.Constants.IntakeConstants.IntakeWantedState;
+import frc.robot.Constants.ShooterConstants.ShooterWantedState;
+import frc.robot.Constants.TurretConstants.TurretWantedState;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Scoring.Shooter;
@@ -23,6 +25,7 @@ import frc.robot.commands.Lights.WPIlib.ScrollPattern;
 import frc.robot.commands.Lights.WPIlib.SetBreathingPattern;
 import frc.robot.commands.Lights.WPIlib.SetSolidColor;
 import frc.robot.commands.Lights.WPIlib.DisableLED;
+import frc.robot.commands.Lights.WPIlib.ReselLED_OLD;
 
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -35,10 +38,13 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -56,8 +62,8 @@ public class RobotContainer {
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   private final Intake intake = new Intake();
   private final Feeder feeder = new Feeder();
-  // private final Turret turret = new Turret(drivetrain);
-  // private final Shooter shooter = new Shooter();
+  private final Turret turret = new Turret(drivetrain);
+  private final Shooter shooter = new Shooter();
   // private final Vision vision = new Vision();
   public SendableChooser<Command> sendableChooser = new SendableChooser<>();
 
@@ -105,12 +111,21 @@ public class RobotContainer {
                 .withRotationalRate(-driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
         )
     );
-    driver.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+    //gyro reset
+    driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
     
+    //intake
+    driver.rightBumper()
+      .onTrue(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.INTAKE)))
+      .onFalse(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.IDLE)));
+    driver.leftBumper()
+      .onTrue(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT)))
+      .onFalse(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.IDLE)));
+
     // Driver Helping
-    // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
     // driver.b().whileTrue(drivetrain.applyRequest(() ->
-    //     point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+    //     point.withModuleDirection(new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))
     // ));  
 
     /* OPERATOR */
@@ -118,31 +133,15 @@ public class RobotContainer {
 
 
     /* TESTING BUTTONS */
-    //intake
-    driver.x()
-      .onTrue(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.TEST)))
-      .onFalse(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.IDLE)));
+    //shooting
+    operator.rightTrigger()
+      .onTrue(new SequentialCommandGroup(
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TEST)),
+        new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.FEEDTEST))))
+      .onFalse(new SequentialCommandGroup(
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)),
+        new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE))));
 
-    //feeder
-    driver.y()
-      .onTrue(new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.FEEDTEST)))
-      .onFalse(new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE)));
-    
-    //lights
-    driver.b()
-      .onTrue(new SetSolidColor(normalLights, LightsConstants.BRGColors.get("magenta")));
-    driver.a()
-      .onTrue(new DisableLED(normalLights));
-
-    //turret
-    // operator.a()
-      // .onTrue(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TEST)))
-      // .onFalse(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE)));
-
-    //shooter
-    // operator.b()
-      // .onTrue(new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TEST)))
-      // .onFalse(new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)));
 
     /* UNNEEDED, DELETE */
     // Idle while the robot is disabled. This ensures the configured
