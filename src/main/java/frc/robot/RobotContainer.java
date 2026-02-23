@@ -22,7 +22,8 @@ import frc.robot.commands.Lights.WPIlib.RunPattern;
 import frc.robot.commands.Lights.WPIlib.ScrollPattern;
 import frc.robot.commands.Lights.WPIlib.SetBreathingPattern;
 import frc.robot.commands.Lights.WPIlib.SetSolidColor;
-import frc.robot.commands.Lights.WPIlib.DisableLED;
+import frc.robot.commands.Lights.WPIlib.SetTwinklePattern;
+import frc.robot.commands.Lights.WPIlib.ResetLED;
 
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -130,9 +131,9 @@ public class RobotContainer {
     
     //lights
     driver.b()
-      .onTrue(new SetSolidColor(normalLights, LightsConstants.BRGColors.get("magenta")));
+      .onTrue(new SetTwinklePattern(normalLights, LightsConstants.BRGColors.get("black"), LightsConstants.BRGColors.get("yellow"), 2));
     driver.a()
-      .onTrue(new DisableLED(normalLights));
+      .onTrue(new ResetLED(normalLights));
 
     //turret
     // operator.a()
