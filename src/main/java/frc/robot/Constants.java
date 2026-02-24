@@ -294,14 +294,14 @@ public final class Constants {
 
     public static Transform3d kRobotToCam = new Transform3d(
       new Translation3d(
-        Units.inchesToMeters(19.41), 
-        0, 
-        Units.inchesToMeters(6.6)),
+        -(Units.inchesToMeters(0.643)), 
+        Units.inchesToMeters(0.616), 
+        Units.inchesToMeters(17.467)),
       new Rotation3d(
         0, 
         Units.degreesToRadians(23), 
         0)
-      ); // TODO: edit transform 3d for this cam
+      );
 
     public static Transform3d kRobotToCam2 = new Transform3d(
       new Translation3d(
