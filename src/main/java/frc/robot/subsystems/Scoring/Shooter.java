@@ -19,6 +19,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -94,19 +95,20 @@ public class Shooter extends SubsystemBase {
     shooterMotor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     shooterMotor2Config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    //use this for velocity motion magic 
-    hoodMotorConfig.MotionMagic.MotionMagicAcceleration = ShooterConstants.shooterMotionMagicAccel; // Target acceleration of 160 rps/s (0.5 seconds)
-    hoodMotorConfig.MotionMagic.MotionMagicJerk = ShooterConstants.shooterMotionMagicJerk;
+    shooterMotor1Config.Voltage.PeakReverseVoltage = 0;
+    shooterMotor2Config.Voltage.PeakReverseVoltage = 0;
 
-    shooterMotor1Config.MotionMagic.MotionMagicAcceleration = ShooterConstants.shooterMotionMagicAccel; // Target acceleration of 160 rps/s (0.5 seconds)
+
+    shooterMotor1Config.MotionMagic.MotionMagicAcceleration = ShooterConstants.shooterMotionMagicAccel;
     shooterMotor1Config.MotionMagic.MotionMagicJerk = ShooterConstants.shooterMotionMagicJerk;
+
+    shooterMotor2Config.MotionMagic.MotionMagicAcceleration = ShooterConstants.shooterMotionMagicAccel; 
+    shooterMotor2Config.MotionMagic.MotionMagicJerk = ShooterConstants.shooterMotionMagicJerk;
+
 
     //use this for motion magic expo (very good control of position)
     hoodMotorConfig.MotionMagic.MotionMagicExpo_kV = ShooterConstants.shooterMotionMagicExpoK_V;
     hoodMotorConfig.MotionMagic.MotionMagicExpo_kA = ShooterConstants.shooterMotionMagicExpoK_A;
-
-    shooterMotor1Config.MotionMagic.MotionMagicExpo_kV = ShooterConstants.shooterMotionMagicExpoK_V;
-    shooterMotor1Config.MotionMagic.MotionMagicExpo_kA = ShooterConstants.shooterMotionMagicExpoK_A;
 
     //APPLY CONFIG TO MOTOR
     StatusCode hoodMotorStatus = StatusCode.StatusCodeNotInitialized;
@@ -198,7 +200,7 @@ public class Shooter extends SubsystemBase {
         position = ShooterConstants.hoodAngleInterpolation.getPrediction(ShooterConstants.passDistance);
         break;
       case TESTING:
-        motorspeed = 0.35;
+        motorspeed = 60;
         break;
     }
   }
@@ -250,19 +252,27 @@ public class Shooter extends SubsystemBase {
     }
   }
 
+  private void logValues() {
+    SmartDashboard.putNumber("Shooter Motor Position", shooterMotor1.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("Shooter Wanted Position", position);
+    SmartDashboard.putNumber("Shooter Wanted Speed", motorspeed);
+    SmartDashboard.putString("SHOOTER WANTED STATE", wantedState.toString());
+    SmartDashboard.putString("SHOOTER SYSTEM STATE", systemState.toString());
+  }
+
   @Override
   public void periodic() {
+    logValues();
     checkTunableValues();
     systemState = changeCurrentSystemState();
     applyState();
     //example of how to control motor for position
     // hoodMotor.setControl(mmE_request.withPosition(position));
     //example of how to control motor for velocity
-    // shooterMotor1.setControl(mm_request.withVelocity(motorspeed));
-    //example of how to control motor for velocity
-    // shooterMotor2.setControl(mm_request.withVelocity(-motorspeed));
-    shooterMotor1.set(motorspeed);
-    shooterMotor2.set(motorspeed);
+    shooterMotor1.setControl(mm_request.withVelocity(motorspeed));
+    shooterMotor2.setControl(mm_request.withVelocity(motorspeed));
+    // shooterMotor1.set(motorspeed);
+    // shooterMotor2.set(motorspeed);
     
   }
 

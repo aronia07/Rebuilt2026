@@ -57,8 +57,8 @@ public final class Constants {
 
     public static int shooterMotionMagicExpoK_V;
     public static int shooterMotionMagicExpoK_A;
-    public static int shooterMotionMagicAccel;
-    public static int shooterMotionMagicJerk;
+    public static int shooterMotionMagicAccel = 400; //rps^2
+    public static int shooterMotionMagicJerk = 4000; //rps^2/s
 
     public static int SupplyCurrentLimit = 80;
     public static int StatorCurrentLimit = 80;
@@ -67,8 +67,8 @@ public final class Constants {
     public static int shooterMotor1ID = 61;
     public static int shooterMotor2ID = 60;
 
-    public static double[] shooterPID = {0, 0, 0};
-    public static double[] shooterSVA = {0, 0, 0};
+    public static double[] shooterPID = {0.1, 0, 0};
+    public static double[] shooterSVA = {0.0, 0.1, 0};
     public enum ShooterWantedState {
       IDLE,
       WAIT,
