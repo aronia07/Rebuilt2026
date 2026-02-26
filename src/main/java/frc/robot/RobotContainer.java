@@ -135,6 +135,9 @@ public class RobotContainer {
 
     /* TESTING BUTTONS */
     //shooting
+    operator.a()
+      .onTrue(new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TEST)))
+      .onFalse(new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)));
     operator.rightTrigger()
       .onTrue(new SequentialCommandGroup(
         new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TEST)),
