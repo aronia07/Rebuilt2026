@@ -104,8 +104,6 @@ public class Intake extends SubsystemBase {
     return switch (wantedState) {
       case IDLE: 
         yield SystemState.IDLING;
-      case SHOOT :
-        yield SystemState.SHOOTING;
       case INTAKE :
         yield SystemState.INTAKING;
       case RETRACT :
@@ -118,39 +116,37 @@ public class Intake extends SubsystemBase {
   }
 
     
-  private void applyState(){
-    Timer timer = new Timer();
-
+  private void applyState(int counter){
+    // Timer timer = new Timer();
     switch(systemState){
       case IDLING:
-        timer.stop();
-        timer.reset();
+        // timer.stop();
+        // timer.reset();
         motorspeed = 0.0;
         break;
       case INTAKING:
         position = IntakeConstants.intakingPosition; 
         motorspeed = IntakeConstants.intakingSpeed;
         break;
-      case SHOOTING :
-        motorspeed = IntakeConstants.shootingPosition;
-        break;
-      case RETRACTING :
+      case RETRACTING:
         position = IntakeConstants.retractingPos;
         break;
       case RESETING:
         intakeExtensionMotor.setPosition(0);
         break;
       case SCORING:
-        timer.start();
-        position = IntakeConstants.retractingPos;
-          if(timer.get() % 2 ==0) {
-            if(position == IntakeConstants.retractingPos) {
-              position = IntakeConstants.shootingPosition;
-            } else {
-              position = IntakeConstants.retractingPos;
+        motorspeed = IntakeConstants.intakingSpeed;
+        counter++;
+        if((counter/50) % 2 == 0) {
+          if (position == IntakeConstants.retractingPos) {
+            position = IntakeConstants.intakingPosition;
+          } else {
+            position = IntakeConstants.retractingPos;
           }
-    }}
+        }
+    }
   }
+  
   
   private void LogValues() {
     SmartDashboard.putNumber("Extension Motor Position", intakeExtensionMotor.getPosition().getValueAsDouble());
@@ -163,10 +159,10 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
+    int counter = 0;
     LogValues();
-    checkTunableValues();
     systemState = changeCurrentSystemState();
-    applyState();
+    applyState(counter);
     //example of how to control motor for velocity
     // intakeMotor.setControl(mm_request.withVelocity(motorspeed));
     //example of how to control motor for position
@@ -176,4 +172,5 @@ public class Intake extends SubsystemBase {
   }
 
 }
+
  

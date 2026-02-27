@@ -13,6 +13,7 @@ import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -20,7 +21,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase {
   final MotionMagicVelocityVoltage mm_request = new MotionMagicVelocityVoltage(0);
   //for position control
   private double position = 0.0;
-  final MotionMagicExpoVoltage mmE_request = new MotionMagicExpoVoltage(0);
+  final PositionVoltage mmE_request = new PositionVoltage(0);
 
   /* PIDFF CONTROL */
   private LoggedTunableNumber k_S = new LoggedTunableNumber("shooter_s", ShooterConstants.shooterSVA[0]);
@@ -71,12 +71,12 @@ public class Shooter extends SubsystemBase {
     shooterMotor1Config.CurrentLimits.StatorCurrentLimit = ShooterConstants.StatorCurrentLimit;
     
     //PID CONSTANTS
-    hoodMotorConfig.Slot0.kS = k_S.get();
-    hoodMotorConfig.Slot0.kV = k_V.get();
-    hoodMotorConfig.Slot0.kA = k_A.get(); 
-    hoodMotorConfig.Slot0.kP = k_P.get();
-    hoodMotorConfig.Slot0.kI = k_I.get();
-    hoodMotorConfig.Slot0.kD = k_D.get();
+    hoodMotorConfig.Slot0.kS = ShooterConstants.hoodSVA[0];
+    hoodMotorConfig.Slot0.kV = ShooterConstants.hoodSVA[1];
+    hoodMotorConfig.Slot0.kA = ShooterConstants.hoodSVA[2]; 
+    hoodMotorConfig.Slot0.kP = ShooterConstants.hoodPID[0];
+    hoodMotorConfig.Slot0.kI = ShooterConstants.hoodPID[1];
+    hoodMotorConfig.Slot0.kD = ShooterConstants.hoodPID[2];
 
     shooterMotor1Config.Slot0.kS = k_S.get();
     shooterMotor1Config.Slot0.kV = k_V.get();
@@ -94,6 +94,7 @@ public class Shooter extends SubsystemBase {
 
     shooterMotor1Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     shooterMotor2Config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    hoodMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     shooterMotor1Config.Voltage.PeakReverseVoltage = 0;
     shooterMotor2Config.Voltage.PeakReverseVoltage = 0;
@@ -121,7 +122,7 @@ public class Shooter extends SubsystemBase {
     }
 
     StatusCode shooterMotor1Status = StatusCode.StatusCodeNotInitialized;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 5; ++i) {
       shooterMotor1Status = shooterMotor1.getConfigurator().apply(shooterMotor1Config);
       if (shooterMotor1Status.isOK()) break;
     }
@@ -130,7 +131,7 @@ public class Shooter extends SubsystemBase {
     }
 
     StatusCode shooterMotor2Status = StatusCode.StatusCodeNotInitialized;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 5; ++i) {
       shooterMotor2Status = shooterMotor2.getConfigurator().apply(shooterMotor2Config);
       if (shooterMotor2Status.isOK()) {
             break;
@@ -171,6 +172,8 @@ public class Shooter extends SubsystemBase {
         yield SystemState.PASS_SHOOTING;
       case HUB_SHOOT:
         yield SystemState.HUB_SHOOTING;
+      case HOME:
+        yield SystemState.HOMING;
       case TEST:
         yield SystemState.TESTING;
     };
@@ -199,8 +202,15 @@ public class Shooter extends SubsystemBase {
         motorspeed = ShooterConstants.shooterSpeedInterpolation.getPrediction(ShooterConstants.passDistance);
         position = ShooterConstants.hoodAngleInterpolation.getPrediction(ShooterConstants.passDistance);
         break;
+      case HOMING:
+        position = -.2;
+        if (hoodMotor.getSupplyCurrent().getValueAsDouble() >= ShooterConstants.homingThreshold) {
+          hoodMotor.setPosition(0);
+          position = 0;
+        } 
       case TESTING:
-        motorspeed = 60;
+        motorspeed = 62;
+        position = 7.5;
         break;
     }
   }
@@ -209,19 +219,7 @@ public class Shooter extends SubsystemBase {
   /**
    * Check LoggedTunableNumbers. If changed, update PID and SVA values of motor
    */
-  public void checkTunableValues() {
-    if (k_S.hasChanged() || k_V.hasChanged() || k_A.hasChanged() 
-    || k_P.hasChanged() || k_I.hasChanged() || k_D.hasChanged()) {
-      hoodMotorConfig.Slot0.kS = k_S.get();
-      hoodMotorConfig.Slot0.kV = k_V.get();
-      hoodMotorConfig.Slot0.kA = k_A.get(); 
-      hoodMotorConfig.Slot0.kP = k_P.get();
-      hoodMotorConfig.Slot0.kI = k_I.get();
-      hoodMotorConfig.Slot0.kD = k_D.get();
-
-      hoodMotor.getConfigurator().apply(hoodMotorConfig);
-    }
-    
+  public void checkTunableValues() {    
 
     if (k_S.hasChanged() || k_V.hasChanged() || k_A.hasChanged() 
     || k_P.hasChanged() || k_I.hasChanged() || k_D.hasChanged()) {
@@ -239,8 +237,6 @@ public class Shooter extends SubsystemBase {
       shooterMotor2Config.Slot0.kI = k_I.get();
       shooterMotor2Config.Slot0.kD = k_D.get();
       
-      shooterMotor1.getConfigurator().apply(shooterMotor1Config);
-      shooterMotor2.getConfigurator().apply(shooterMotor2Config);
     }
   }
 
@@ -253,9 +249,11 @@ public class Shooter extends SubsystemBase {
   }
 
   private void logValues() {
-    SmartDashboard.putNumber("Shooter Motor Position", shooterMotor1.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Shooter Wanted Position", position);
-    SmartDashboard.putNumber("Shooter Wanted Speed", motorspeed);
+    // SmartDashboard.putNumber("Shooter Actual Speed", shooterMotor1.getVelocity().getValueAsDouble());
+    // SmartDashboard.putNumber("Hood Wanted Position", position);
+    // SmartDashboard.putNumber("Hood Actual Position", hoodMotor.getPosition().getValueAsDouble());
+    // SmartDashboard.putNumber("Shooter Wanted Speed", motorspeed);
+    SmartDashboard.putNumber("Hood Motor Current", hoodMotor.getSupplyCurrent().getValueAsDouble());
     SmartDashboard.putString("SHOOTER WANTED STATE", wantedState.toString());
     SmartDashboard.putString("SHOOTER SYSTEM STATE", systemState.toString());
   }
@@ -263,11 +261,10 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     logValues();
-    checkTunableValues();
     systemState = changeCurrentSystemState();
     applyState();
     //example of how to control motor for position
-    // hoodMotor.setControl(mmE_request.withPosition(position));
+    hoodMotor.setControl(mmE_request.withPosition(position));
     //example of how to control motor for velocity
     shooterMotor1.setControl(mm_request.withVelocity(motorspeed));
     shooterMotor2.setControl(mm_request.withVelocity(motorspeed));

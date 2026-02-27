@@ -55,25 +55,30 @@ public final class Constants {
     public static double distanceToHub;
     public static double passDistance;
 
-    public static int shooterMotionMagicExpoK_V;
-    public static int shooterMotionMagicExpoK_A;
-    public static int shooterMotionMagicAccel = 400; //rps^2
-    public static int shooterMotionMagicJerk = 4000; //rps^2/s
+    public static double shooterMotionMagicExpoK_V = 0.1;
+    public static double shooterMotionMagicExpoK_A = 0.1;
+    public static double shooterMotionMagicAccel = 400; //rps^2
+    public static double shooterMotionMagicJerk = 4000; //rps^2/s
 
     public static int SupplyCurrentLimit = 80;
     public static int StatorCurrentLimit = 80;
+    public static double homingThreshold;
 
     public static int hoodMotorID = 53;
     public static int shooterMotor1ID = 61;
     public static int shooterMotor2ID = 60;
+    
+    public static double[] hoodPID = {2.0, 0, 0};
+    public static double[] hoodSVA = {0.0, 0, 0};
 
-    public static double[] shooterPID = {0.1, 0, 0};
-    public static double[] shooterSVA = {0.0, 0.1, 0};
+    public static double[] shooterPID = {0.5, 0, 0};
+    public static double[] shooterSVA = {0.0, 0.117, 0};
     public enum ShooterWantedState {
       IDLE,
       WAIT,
       PASS_SHOOT,
       HUB_SHOOT,
+      HOME,
       TEST
     }
     public enum SystemState {
@@ -82,6 +87,7 @@ public final class Constants {
       INACTIVE_WAITING,
       PASS_SHOOTING,
       HUB_SHOOTING,
+      HOMING,
       TESTING
     }
   }
@@ -107,8 +113,7 @@ public final class Constants {
     public static double[] intakeSVA = {0, 0.13, 0.01};
     public enum IntakeWantedState {
       IDLE,
-      INTAKE,
-      SHOOT, 
+      INTAKE, 
       RETRACT,
       RESET,
       SCORE
@@ -116,7 +121,6 @@ public final class Constants {
     public enum SystemState {
       IDLING,
       INTAKING,
-      SHOOTING,
       RETRACTING,
       RESETING,
       SCORING
@@ -141,7 +145,7 @@ public final class Constants {
     public static int hubAimPosition;
     public static int trenchPresetPosition;
 
-    public static double[] turretPID = {0, 0, 0};
+    public static double[] turretPID = {25, 0, 0};
     public static double[] turretSVA = {0, 0, 0};
 
     public enum TurretWantedState {
