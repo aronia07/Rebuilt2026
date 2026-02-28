@@ -20,7 +20,7 @@ import java.util.Random;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-//import edu.wpi.first.wpilibj.AddressableLEDBufferView;
+import edu.wpi.first.wpilibj.AddressableLEDBufferView;
 
 public class LEDSubsystem_WPIlib extends SubsystemBase {
   // edu.wpi.first.wpilibj.AddressableLED
@@ -31,18 +31,26 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
   // However, multiple LED strips can be connected in series and controlled from
   // the single driver.
 
-  // Setup
-  private static final int kPort = LightsConstants.main_port; // PWM Port
-  private static final int kLength = LightsConstants.main_length; // LED strip length [# of LEDs]
+  // SETUP
+  // ========================================================================
+  private static final int kPort = LightsConstants.led_port; // PWM Port
+  private static final int kLength = LightsConstants.led_length; // LED strip length [# of LEDs]
   private static final Distance kLedSpacing = LightsConstants.spacing; // LED strip LEDs density - [... LEDs per meter]
-  private static final int brightness = LightsConstants.main_brightness;
+  private static final int brightness = LightsConstants.led_brightness;
+  private static final int signal_length = LightsConstants.signal_length; // Length of signal LED sector (last x LEDs)
 
+  // BUFFERS
+  // ======================================================================
   private final AddressableLED m_led;
-  private final AddressableLEDBuffer m_ledbuffer;
-  // private final AddressableLEDBufferView m_left; //Left side of the LED strip
-  // private final AddressableLEDBufferView m_right; //Right side of the LED strip
+  private final AddressableLEDBuffer m_ledbuffer; // The entire LED strip
+  private final AddressableLEDBufferView m_sidesBuffer; // The buffer for sides of the robot
+  private final AddressableLEDBufferView m_signalBuffer; // The buffer for the signal LEDs (last 10 LEDs)
+
+  // HANDLERS =============================================================
   private final Timer timer = new Timer(); // WPILib Timer
   private final Random random = new Random();
+
+  // LED BUFFER STATES ====================================================
   private boolean running_AnimatedPattern = false;
   private LEDPattern animatedPattern;
   // Twinkle pattern state variables
@@ -50,19 +58,17 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
   private double twinklePeriod = 0;
   private Color twinkleBaseColor = null;
   private Color twinkleColor = null;
-  private boolean[] twinkleMask;       // fast lookup instead of List
+  private boolean[] twinkleMask; // fast lookup instead of List
   private double[] twinklePhaseOffset; // each LED has independent phase
   private int twinkle_Count = 10; // number of LEDs to twinkle at a time, can be tuned
-    
 
   public LEDSubsystem_WPIlib() {
-    // Buffer and LED initialization
+    // LED AND BUFFERS ============================================================
     m_led = new AddressableLED(kPort);
     m_ledbuffer = new AddressableLEDBuffer(kLength);
-    // m_left = m_ledbuffer.createView(0, kLength/2 - 1); //Left side of the LED
-    // strip
-    // m_right = m_ledbuffer.createView(kLength/2, kLength - 1).reversed(); //Right
-    // side of the LED strip
+    m_sidesBuffer = m_ledbuffer.createView(0, kLength - 1 - signal_length); // Sides of the robot
+    m_signalBuffer = m_ledbuffer.createView(kLength - signal_length, kLength - 1); // Signal LEDs (last 10 LEDs)
+
     m_led.setLength(m_ledbuffer.getLength());
     m_led.setData(m_ledbuffer);
     m_led.start();
@@ -74,27 +80,20 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
     twinkleColor = null;
     twinklePeriod = 0;
     animatedPattern = null;
-
     twinkleMask = new boolean[kLength];
     twinklePhaseOffset = new double[kLength];
 
+    // To get color, use: LightsConstants.RBGColors.get("gold")
 
-    // Set the default command to turn the strip off, otherwise the last colors
-    // written by
-    // the last command to run will continue to be displayed.
-    // Note: Other default patterns could be used instead!
-    // setDefaultCommand(LED_Reset().withName("LED_Reset"));
-    // setDefaultCommand(runPattern(LEDPattern.solid(Color.kBlack),
-    // false).withName("Off"));
     LED_Breathing(LEDPattern.rainbow(255, 100), 2.5);
-    // LED_Twinkle(LightsConstants.RBGColors.get("black"), LightsConstants.RBGColors.get("gold"), 4);
+    // LED_Twinkle(LightsConstants.RBGColors.get("black");
     // LED_ScrollPatternRelative(LEDPattern.rainbow(255, 120), 100);
-    // LED_SolidColor(LightsConstants.RBGColors.get("blue"));  //RBG - ADD
   }
 
   /**
    * Disable LED strip - Terminates all patterns and stops the LED strip.
-   * !! DO NOT USE UNLESS NECESSARY !! - It fully disables LEDs until robot restart.
+   * !! DO NOT USE UNLESS NECESSARY !! - It fully disables LEDs until robot
+   * restart.
    */
   public void LED_Disable() {
     stopTwinkle();
@@ -122,14 +121,14 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
   /**
    * Scrolling pattern at relative speed.
    * 
-   * @param pattern the LED pattern to run
+   * @param pattern   the LED pattern to run
    * @param magnitude for frequency calculation [/s]
    */
   public void LED_ScrollPatternRelative(LEDPattern pattern, double magnitude) {
-    //LEDPattern m_scrollingPattern = pattern.scrollAtAbsoluteSpeed(MetersPerSecond.of(speed), kLedSpacing);
+    // LEDPattern m_scrollingPattern = pattern.scrollAtAbsoluteSpeed(MetersPerSecond.of(speed), kLedSpacing);
     LEDPattern m_scrollingPattern = pattern.scrollAtRelativeSpeed(Percent.per(Second).of(magnitude));
     runPattern(m_scrollingPattern, true);
-    //System.out.println("Scroll function executed!!!!!!!!!!!!");
+    // System.out.println("Scroll function executed!!!!!!!!!!!!");
   }
 
   /**
@@ -158,9 +157,9 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
   /**
    * Twinkle pattern.
    * 
-   * @param baseColor the color of static LED's
+   * @param baseColor    the color of static LED's
    * @param twinkleColor the color of twinkling LED's
-   * @param period the time of one full cycle in [s]
+   * @param period       the time of one full cycle in [s]
    */
   public void LED_Twinkle(Color baseColor, Color twinkleColor, double period) {
     stopTwinkle();
@@ -179,7 +178,7 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
 
   /**
    * Stops the twinkle effect by resetting all twinkle-related state.
-  */
+   */
   public void stopTwinkle() {
     running_TwinklePattern = false;
 
@@ -210,13 +209,13 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
       for (int i = 0; i < kLength; i++) {
         if (twinkleMask[i]) {
           double phase = ((timer.get() + twinklePhaseOffset[i]) % twinklePeriod) / twinklePeriod;
-          double b = 0.5 - 0.5 * Math.cos(phase * 2 * Math.PI);   // double b = 0.5 + 0.5 * Math.sin(phase * 2 * Math.PI); OR double b = 0.5 - 0.5 * Math.cos(phase * 2 * Math.PI);
+          double b = 0.5 - 0.5 * Math.cos(phase * 2 * Math.PI); // double b = 0.5 + 0.5 * Math.sin(phase * 2 * Math.PI);
+                                                                // OR double b = 0.5 - 0.5 * Math.cos(phase * 2 * Math.PI);
 
           Color c = new Color(
               twinkleColor.red * b,
               twinkleColor.green * b,
-              twinkleColor.blue * b
-          );
+              twinkleColor.blue * b);
           m_ledbuffer.setLED(i, c);
         } else if (!running_AnimatedPattern) {
           // Only force base color when there is NO animated pattern underneath
@@ -224,7 +223,7 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
         }
       }
 
-      if (t > twinklePeriod) {  // Was * 0.6, but it means leds can stop mid transition, so NO!
+      if (t > twinklePeriod) { // Was * 0.6, but it means leds can stop mid transition, so NO!
         randomizeTwinkleLEDs();
         timer.reset();
       }
@@ -236,7 +235,7 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
 
   /**
    * Random assignment of LEDs
-  */
+   */
   private void randomizeTwinkleLEDs() {
     for (int i = 0; i < kLength; i++) {
       twinkleMask[i] = false;
@@ -250,6 +249,7 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
       twinklePhaseOffset[index] = -random.nextDouble() * twinklePeriod * 0.5;
     }
   }
+
   /**
    * A function that runs a pattern on the entire LED strip.
    * It also controls whether the pattern is animated or not
