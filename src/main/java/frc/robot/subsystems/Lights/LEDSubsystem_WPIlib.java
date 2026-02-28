@@ -2,7 +2,7 @@ package frc.robot.subsystems.Lights;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LightsConstants;
-
+import frc.robot.commands.Lights.WPIlib.SetBreathingPattern;
 //LED Imports
 //import edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -86,9 +86,9 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
     // setDefaultCommand(LED_Reset().withName("LED_Reset"));
     // setDefaultCommand(runPattern(LEDPattern.solid(Color.kBlack),
     // false).withName("Off"));
-
-    LED_Twinkle(LightsConstants.RBGColors.get("black"), LightsConstants.RBGColors.get("gold"), 2);
-    //LED_ScrollPatternRelative(LEDPattern.rainbow(255, 120), 100);
+    LED_Breathing(LEDPattern.rainbow(255, 100), 2.5);
+    // LED_Twinkle(LightsConstants.RBGColors.get("black"), LightsConstants.RBGColors.get("gold"), 4);
+    // LED_ScrollPatternRelative(LEDPattern.rainbow(255, 120), 100);
     // LED_SolidColor(LightsConstants.RBGColors.get("blue"));  //RBG - ADD
   }
 

@@ -71,7 +71,7 @@ public final class Constants {
     public static double[] hoodPID = {2.0, 0, 0};
     public static double[] hoodSVA = {0.0, 0, 0};
 
-    public static double[] shooterPID = {0.5, 0, 0};
+    public static double[] shooterPID = {0.6, 0, 0};
     public static double[] shooterSVA = {0.0, 0.117, 0};
     public enum ShooterWantedState {
       IDLE,
@@ -145,7 +145,7 @@ public final class Constants {
 
     public static double passAimPosition = 0.25;
     public static double hubAimPosition;
-    public static double trenchPresetPosition = 0.53;
+    public static double trenchPresetPosition = 0.51;
 
     public static double[] turretPID = {40, 0, 0};
     public static double[] turretSVA = {0, 0, 0};
@@ -181,7 +181,7 @@ public final class Constants {
     public static int spindexerMotorID = 40;
 
     public static double feederIntakeSpeed;
-    public static double feederShootSpeed = 0.7;
+    public static double feederShootSpeed = 0.8;
     
     public static double[] feederPID = {0, 0, 0};
     public static double[] feederSVA = {0, 0, 0};

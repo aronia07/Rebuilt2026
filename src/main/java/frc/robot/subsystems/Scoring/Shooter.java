@@ -197,8 +197,8 @@ public class Shooter extends SubsystemBase {
         position = 0.0;
         break;
       case TRENCH_SHOOTING:
-        motorspeed = 57;
-        position = .57;
+        motorspeed = 50;
+        position = 5.5;
         break;
       case HUB_SHOOTING:
         motorspeed = ShooterConstants.shooterSpeedInterpolation.getPrediction(ShooterConstants.distanceToHub);
@@ -255,7 +255,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean shooterIsReady() {
-    if(Math.abs(shooterMotor1.getVelocity().getValueAsDouble() - motorspeed) < 5){
+    if(Math.abs(shooterMotor1.getVelocity().getValueAsDouble() - motorspeed) < 1){
       return true;
     } else {
       return false;
@@ -263,10 +263,10 @@ public class Shooter extends SubsystemBase {
   }
 
   private void logValues() {
-    // SmartDashboard.putNumber("Shooter Actual Speed", shooterMotor1.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("Shooter Actual Speed", shooterMotor1.getVelocity().getValueAsDouble());
     // SmartDashboard.putNumber("Hood Wanted Position", position);
     // SmartDashboard.putNumber("Hood Actual Position", hoodMotor.getPosition().getValueAsDouble());
-    // SmartDashboard.putNumber("Shooter Wanted Speed", motorspeed);
+    SmartDashboard.putNumber("Shooter Wanted Speed", motorspeed);
     SmartDashboard.putNumber("Hood Motor Current", hoodMotor.getSupplyCurrent().getValueAsDouble());
     SmartDashboard.putString("SHOOTER WANTED STATE", wantedState.toString());
     SmartDashboard.putString("SHOOTER SYSTEM STATE", systemState.toString());
