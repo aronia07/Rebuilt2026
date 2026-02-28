@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.Scoring;
 
+import edu.wpi.first.math.util.Units;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -40,6 +42,8 @@ public class Turret extends SubsystemBase {
 
   //for position control
   private double position = 0.0;
+  private double CCWlimit = 0.85;
+  private double CWLimit = -0.85;
 
   final PositionVoltage mmE_request = new PositionVoltage(0);
 
@@ -71,7 +75,7 @@ public class Turret extends SubsystemBase {
 
     turretMotorConfig.Feedback.FeedbackRemoteSensorID = 54;
     turretMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-    turretMotorConfig.ClosedLoopGeneral.ContinuousWrap = true;
+    turretMotorConfig.ClosedLoopGeneral.ContinuousWrap = false;
     
     //PID CONSTANTS
     turretMotorConfig.Slot0.kS = k_S.get();
@@ -110,9 +114,9 @@ public class Turret extends SubsystemBase {
         yield SystemState.IDLING;
       case AIM:
         if (drivetrain.isInAllianceZone()) {
-          yield SystemState.PASS_AIMING;
-        } else {
           yield SystemState.HUB_AIMING;
+        } else {
+          yield SystemState.PASS_AIMING;
         }
       case TRENCH_PRESET:
         yield SystemState.TRENCH_PRESETTING;
@@ -130,11 +134,6 @@ public class Turret extends SubsystemBase {
     switch(systemState){
       case IDLING:
         position = 0.0;
-        if (Math.abs(encoder.getAbsolutePosition().getValueAsDouble() - position) < TurretConstants.tolerance) { 
-          if (encoder.getPosition().getValueAsDouble() != encoder.getAbsolutePosition().getValueAsDouble()) {
-            encoder.setPosition(encoder.getAbsolutePosition().getValue());
-          }
-        }
         break;
       case PASS_AIMING:
         leds.LED_SolidColor(LightsConstants.RBGColors.get("magenta"));
@@ -143,8 +142,18 @@ public class Turret extends SubsystemBase {
       case HUB_AIMING:
         leds.LED_SolidColor(LightsConstants.RBGColors.get("yellow"));
         double calcTurretAngle = 
-          drivetrain.getTurretPose().getRotation().getDegrees() - Math.atan(drivetrain.getYfromHub() / drivetrain.getXfromHub());
-        double desiredTurretAngle;
+          (drivetrain.getTurretPose().getRotation().getDegrees() - Units.radiansToDegrees(Math.atan(drivetrain.getYfromHub() / drivetrain.getXfromHub())))/360;
+          SmartDashboard.putNumber("Calculated Turret setpint", calcTurretAngle);
+          SmartDashboard.putNumber("Angle without convrsion", (-drivetrain.getTurretPose().getRotation().getDegrees() + Units.radiansToDegrees(Math.atan(drivetrain.getYfromHub() / drivetrain.getXfromHub()))));
+        // if(calcTurretAngle < CWLimit) {
+        //   calcTurretAngle = calcTurretAngle + 1;
+        // } if (calcTurretAngle > CCWlimit) {
+        //   calcTurretAngle = calcTurretAngle - 1;
+        // }
+        SmartDashboard.putNumber("Turret Setpoint with adjustment", calcTurretAngle);
+
+        position = calcTurretAngle;
+        //convert to rotations, set limits, 
         break;
       case TRENCH_PRESETTING:
         position = TurretConstants.trenchPresetPosition;

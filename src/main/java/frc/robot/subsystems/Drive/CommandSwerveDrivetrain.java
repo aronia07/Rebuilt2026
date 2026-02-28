@@ -93,6 +93,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Pose2d getTurretPose() {
         Pose2d turretPose = getPose().transformBy(VisionConstants.turretToCenter);
+        turretPose = turretPose.rotateAround(turretPose.getTranslation(), Rotation2d.k180deg);
         return turretPose;
     }
 
@@ -109,9 +110,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public double getYfromHub() {
         double yDistance;
         if(allianceColor == Alliance.Red) {
-            yDistance = Math.abs(VisionConstants.RED_HUB_POSE.getY() - getPose().getY());
+            yDistance = VisionConstants.RED_HUB_POSE.getY() - getPose().getY();
         } else {
-            yDistance = Math.abs(VisionConstants.BLUE_HUB_POSE.getY() - getPose().getY());
+            yDistance = VisionConstants.BLUE_HUB_POSE.getY() - getPose().getY();
         }
         return yDistance;
     }
@@ -371,8 +372,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     @Override
     public void periodic() {
-        TheField.setRobotPose(this.getPose());
-        TheField.setRobotPose(this.getTurretPose());
+        TheField.getObject("robot").setPose(getPose());
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply it regardless of DS state.

@@ -161,7 +161,7 @@ public class RobotContainer {
     // driver.a().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(180))));
     // driver.b().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(270))));
 
-    turret.setDefaultCommand(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.AIM)));
+    // turret.setDefaultCommand(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.AIM)));
     //intake
     driver.rightBumper()
       .onTrue(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.INTAKE)))
@@ -204,8 +204,8 @@ public class RobotContainer {
     /* TESTING BUTTONS */
     //turret
     operator.x()
-      .onTrue(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TEST)))
-      .onFalse(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.AIM)));
+      .onTrue(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.AIM)))
+      .onFalse(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE)));
     operator.b()
       .onTrue(new SequentialCommandGroup(
         new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TRENCH_SHOOT)),
