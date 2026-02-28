@@ -75,7 +75,7 @@ public class Turret extends SubsystemBase {
 
     turretMotorConfig.Feedback.FeedbackRemoteSensorID = 54;
     turretMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-    turretMotorConfig.ClosedLoopGeneral.ContinuousWrap = true;
+    turretMotorConfig.ClosedLoopGeneral.ContinuousWrap = false;
     
     //PID CONSTANTS
     turretMotorConfig.Slot0.kS = k_S.get();
@@ -141,14 +141,16 @@ public class Turret extends SubsystemBase {
         break;
       case HUB_AIMING:
         leds.LED_SolidColor(LightsConstants.RBGColors.get("yellow"));
-
         double calcTurretAngle = 
           (-drivetrain.getTurretPose().getRotation().getDegrees() + Units.radiansToDegrees(Math.atan(drivetrain.getYfromHub() / drivetrain.getXfromHub())))/360;
+          SmartDashboard.putNumber("Calculated Turret setpint", calcTurretAngle);
         if(calcTurretAngle < CWLimit) {
-          calcTurretAngle = calcTurretAngle - 1;
-        } else if (calcTurretAngle > CCWlimit) {
           calcTurretAngle = calcTurretAngle + 1;
+        } if (calcTurretAngle > CCWlimit) {
+          calcTurretAngle = calcTurretAngle - 1;
         }
+        SmartDashboard.putNumber("Turret Setpoint with adjustment", calcTurretAngle);
+
         position = calcTurretAngle;
         //convert to rotations, set limits, 
         break;

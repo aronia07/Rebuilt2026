@@ -1,11 +1,36 @@
 {
   "NetworkTables": {
     "transitory": {
+      "DriveState": {
+        "Pose2d##v_/DriveState/Pose": {
+          "Rotation2d##v_rotation": {
+            "open": true
+          },
+          "open": true
+        }
+      },
+      "Pose": {
+        "double[]##v_/Pose/robotPose": {
+          "open": true
+        },
+        "open": true
+      },
       "SmartDashboard": {
         "Module 3": {
           "open": true
         },
+        "The field": {
+          "open": true
+        },
         "open": true
+      },
+      "photonvision": {
+        "camera1": {
+          "open": true
+        },
+        "camera3": {
+          "open": true
+        }
       }
     },
     "types": {
@@ -19,6 +44,19 @@
       "/SmartDashboard/PhotonAlerts": "Alerts",
       "/SmartDashboard/The field": "Field2d",
       "/SmartDashboard/autos": "String Chooser"
+    },
+    "windows": {
+      "/SmartDashboard/The field": {
+        "bottom": 1914,
+        "height": 8.069275856018066,
+        "left": 245,
+        "right": 3942,
+        "top": 118,
+        "width": 16.54119300842285,
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables Info": {
