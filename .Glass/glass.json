@@ -2,6 +2,9 @@
   "NetworkTables": {
     "transitory": {
       "SmartDashboard": {
+        "Module 3": {
+          "open": true
+        },
         "open": true
       }
     },
@@ -107,7 +110,7 @@
             0.05999999865889549,
             0.9399999976158142
           ],
-          "height": 332,
+          "height": 0,
           "series": [
             {
               "color": [

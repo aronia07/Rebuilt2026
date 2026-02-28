@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FeederConstants;
@@ -112,6 +113,7 @@ public class Feeder extends SubsystemBase {
       case FEEDTESTING:
         spindexerMotorSpeed = 0.7;
         towerMotorSpeed = 0.7;
+        break;
     }
   }
 
@@ -123,6 +125,8 @@ public class Feeder extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putString("FEEDER WANTED STATE", wantedState.toString());
+    SmartDashboard.putString("FEEDER SYSTEM STATE", systemState.toString());
     systemState = changeCurrentSystemState();
     applyState();
     //example of how to control motor for velocity

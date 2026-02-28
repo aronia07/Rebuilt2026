@@ -168,6 +168,8 @@ public class Shooter extends SubsystemBase {
             yield SystemState.INACTIVE_WAITING;
           }
         }
+      case TRENCH_SHOOT:
+        yield systemState.TRENCH_SHOOTING;
       case PASS_SHOOT:
         yield SystemState.PASS_SHOOTING;
       case HUB_SHOOT:
@@ -193,6 +195,10 @@ public class Shooter extends SubsystemBase {
       case INACTIVE_WAITING:
         motorspeed = ShooterConstants.inactiveWaitingSpeed;
         position = 0.0;
+        break;
+      case TRENCH_SHOOTING:
+        motorspeed = 57;
+        position = .57;
         break;
       case HUB_SHOOTING:
         motorspeed = ShooterConstants.shooterSpeedInterpolation.getPrediction(ShooterConstants.distanceToHub);
@@ -245,6 +251,14 @@ public class Shooter extends SubsystemBase {
       return "R";
     } else{
       return "B";
+    }
+  }
+
+  public boolean shooterIsReady() {
+    if(Math.abs(shooterMotor1.getVelocity().getValueAsDouble() - motorspeed) < 5){
+      return true;
+    } else {
+      return false;
     }
   }
 

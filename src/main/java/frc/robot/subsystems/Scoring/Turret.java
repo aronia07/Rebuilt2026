@@ -66,6 +66,7 @@ public class Turret extends SubsystemBase {
 
     turretMotorConfig.Feedback.FeedbackRemoteSensorID = 54;
     turretMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    turretMotorConfig.ClosedLoopGeneral.ContinuousWrap = true;
     
     //PID CONSTANTS
     turretMotorConfig.Slot0.kS = k_S.get();
@@ -104,11 +105,11 @@ public class Turret extends SubsystemBase {
         yield SystemState.IDLING;
       case AIM:
         boolean isInAllianceZone = true;
-        if (isInAllianceZone) {
+        // if (isInAllianceZone) {
           yield SystemState.PASS_AIMING;
-        } else {
-          yield SystemState.HUB_AIMING;
-        }
+        // } else {
+        //   yield SystemState.HUB_AIMING;
+        // }
       case TRENCH_PRESET:
         yield SystemState.TRENCH_PRESETTING;
       case CLOSE_PRESET:
@@ -138,7 +139,7 @@ public class Turret extends SubsystemBase {
         position = TurretConstants.trenchPresetPosition;
         break;
       case TESTING:
-        position = .5;
+        position = .75;
         break;
     }
   }  

@@ -44,6 +44,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -89,8 +90,8 @@ public class RobotContainer {
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
 
 
-  private final SwerveRequest.RobotCentricFacingAngle facingAngle = new SwerveRequest.RobotCentricFacingAngle()
-                        .withDriveRequestType(DriveRequestType.Velocity);
+  // private final SwerveRequest.RobotCentricFacingAngle facingAngle = new SwerveRequest.RobotCentricFacingAngle()
+                        // .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
   private double brake(boolean braking){
     if(braking) {
@@ -143,7 +144,7 @@ public class RobotContainer {
         // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> {
             boolean slowMode = driver.rightBumper().getAsBoolean();
-            double brakingFactor = slowMode ? .5 : 1.0;
+            double brakingFactor = slowMode ? 1.0 : 1.0;
 
             return drive.withVelocityX(-driver.getLeftY() * MaxSpeed * brakingFactor) // Drive forward with negative Y (forward)
                 .withVelocityY(-driver.getLeftX() * MaxSpeed * brakingFactor) // Drive left with negative X (left)
@@ -154,10 +155,10 @@ public class RobotContainer {
     driver.start().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
     
     //Snap Buttons
-    driver.y().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(0))));
-    driver.x().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(90))));
-    driver.a().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(180))));
-    driver.b().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(270))));
+    // driver.y().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(0))));
+    // driver.x().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(90))));
+    // driver.a().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(180))));
+    // driver.b().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(270))));
 
 
     //intake
@@ -180,22 +181,46 @@ public class RobotContainer {
     // ));  
 
     /* OPERATOR */
-
+    //trench shot
+    operator.b()
+      .onTrue(new SequentialCommandGroup(
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TRENCH_SHOOT)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESET)),
+        waitForShooter(),
+        new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT))))
+      .onFalse(new ParallelCommandGroup(
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE)),
+        new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE))));
+    //agitation manual
+    operator.leftTrigger()
+      .onTrue((new ParallelCommandGroup(
+        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT)))))
+      .onFalse((new ParallelCommandGroup(
+        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.INTAKE)))));
 
 
     /* TESTING BUTTONS */
     //turret
     operator.x()
       .onTrue(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TEST)))
-      .onFalse(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE)));
-
-
+      .onFalse(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.AIM)));
+    operator.b()
+      .onTrue(new SequentialCommandGroup(
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TRENCH_SHOOT)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESET)),
+        waitForShooter(),
+        new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT))))
+      .onFalse(new ParallelCommandGroup(
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE)),
+        new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE))));
     //shooting
     operator.a()
       .onTrue(new ParallelCommandGroup(
-        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TEST))))
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESET))))
       .onFalse(new ParallelCommandGroup(
-        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE))));
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE))));
 
     operator.rightTrigger()
       .onTrue(new SequentialCommandGroup(
@@ -204,15 +229,12 @@ public class RobotContainer {
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE))));
 
     //feeder
-    driver.y()
-      .onTrue(new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.FEEDTEST)))
-      .onFalse(new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE)));
     
     //lights
-    // driver.b()
-    //   .onTrue(new SetTwinklePattern(normalLights, LightsConstants.BRGColors.get("black"), LightsConstants.BRGColors.get("yellow"), 2));
-    // driver.a()
-    //   .onTrue(new ResetLED(normalLights));
+    operator.povUp()
+      .onTrue(new SetBreathingPattern(normalLights, LEDPattern.rainbow(255, 150), 3));
+    operator.povDown()
+      .onTrue(new ResetLED(normalLights));
 
     /* UNNEEDED, DELETE */
     // Idle while the robot is disabled. This ensures the configured
@@ -237,6 +259,10 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return sendableChooser.getSelected();
+  }
+
+  public Command waitForShooter() {
+    return Commands.waitUntil(() -> shooter.shooterIsReady());
   }
 
   public void configureAutoCommands() {
