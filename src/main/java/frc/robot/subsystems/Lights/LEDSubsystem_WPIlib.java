@@ -53,6 +53,7 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
   private Color twinkleColor = null;
   private boolean[] twinkleMask;       // fast lookup instead of List
   private double[] twinklePhaseOffset; // each LED has independent phase
+  private int twinkle_Count = 10; // number of LEDs to twinkle at a time, can be tuned
     
 
   public LEDSubsystem_WPIlib() {
@@ -87,7 +88,7 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
     // setDefaultCommand(runPattern(LEDPattern.solid(Color.kBlack),
     // false).withName("Off"));
 
-    LED_Twinkle(LightsConstants.RBGColors.get("black"), LightsConstants.RBGColors.get("gold"), 2);
+    LED_Twinkle(LightsConstants.RBGColors.get("black"), LightsConstants.RBGColors.get("gold"), 1);
     //LED_ScrollPatternRelative(LEDPattern.rainbow(255, 120), 100);
     // LED_SolidColor(LightsConstants.RBGColors.get("blue"));  //RBG - ADD
   }
@@ -226,7 +227,7 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
 
       if (t > twinklePeriod) {  // Was * 0.6, but it means leds can stop mid transition, so NO!
         randomizeTwinkleLEDs();
-        // timer.reset();
+        timer.reset();
       }
     }
 
@@ -238,13 +239,10 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
    * Random assignment of LEDs
   */
   private void randomizeTwinkleLEDs() {
-    int count = 10; // number of LEDs to twinkle at a time, can be tuned
-
     for (int i = 0; i < kLength; i++) {
       twinkleMask[i] = false;
     }
-    int max = Math.min(count, kLength);
-
+    int max = Math.min(twinkle_Count, kLength);
     for (int i = 0; i < max; i++) {
       int index = random.nextInt(kLength);
       twinkleMask[index] = true;
