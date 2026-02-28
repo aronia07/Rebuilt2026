@@ -10,11 +10,15 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.TurretConstants.TurretWantedState;
@@ -33,9 +37,8 @@ public class Turret extends SubsystemBase {
 
   //for position control
   private double position = 0.0;
-    private double motorspeed = 0.0;
 
-  final MotionMagicExpoVoltage mmE_request = new MotionMagicExpoVoltage(0);
+  final PositionVoltage mmE_request = new PositionVoltage(0);
 
   /* PIDFF CONTROL */
   private LoggedTunableNumber k_S = new LoggedTunableNumber("turret_s", TurretConstants.turretSVA[0]);
@@ -57,8 +60,12 @@ public class Turret extends SubsystemBase {
     /* SETUP CONFIG */
     
     // CURRENT LIMITS
+    turretMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     turretMotorConfig.CurrentLimits.SupplyCurrentLimit = TurretConstants.SupplyCurrentLimit;
     turretMotorConfig.CurrentLimits.StatorCurrentLimit = TurretConstants.StatorCurrentLimit;
+
+    turretMotorConfig.Feedback.FeedbackRemoteSensorID = 54;
+    turretMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     
     //PID CONSTANTS
     turretMotorConfig.Slot0.kS = k_S.get();
@@ -117,7 +124,6 @@ public class Turret extends SubsystemBase {
   private void applyState(){
     switch(systemState){
       case IDLING:
-        motorspeed = 0;
         position = 0.0;
         break;
       case PASS_AIMING:
@@ -132,7 +138,7 @@ public class Turret extends SubsystemBase {
         position = TurretConstants.trenchPresetPosition;
         break;
       case TESTING:
-        motorspeed = -0.1;
+        position = .5;
         break;
     }
   }  
@@ -156,14 +162,22 @@ public class Turret extends SubsystemBase {
     }
   }
 
+  private void logValues() {
+    SmartDashboard.putNumber("Turret Absolute Position", encoder.getAbsolutePosition().getValueAsDouble());
+    SmartDashboard.putNumber("Turret Motor Position", turretMotor.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Turret Wanted Position", position);
+    SmartDashboard.putNumber("Turret Encoder Position", encoder.getPosition().getValueAsDouble());
+    SmartDashboard.putString("TURRET WANTED STATE", wantedState.toString());
+    SmartDashboard.putString("TURRET SYSTEM STATE", systemState.toString());
+  }
+
   @Override
   public void periodic() {
-    checkTunableValues();
+    logValues();
     systemState = changeCurrentSystemState();
     applyState();
     //example of how to control motor for position
     turretMotor.setControl(mmE_request.withPosition(position));
-    turretMotor.set(motorspeed);
   }
 
 }
