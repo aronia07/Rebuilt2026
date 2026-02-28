@@ -10,20 +10,27 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.LightsConstants;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.TurretConstants.TurretWantedState;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Lights.LEDSubsystem_WPIlib;
 import frc.robot.Constants.TurretConstants.SystemState;
 import frc.util.LoggedTunableNumber;
 
 public class Turret extends SubsystemBase {
   private final CommandSwerveDrivetrain drivetrain;
+  private final LEDSubsystem_WPIlib leds;
   /* MOTORS */
   private TalonFX turretMotor = new TalonFX(TurretConstants.turretMotorID, "rio");
   private TalonFXConfiguration turretMotorConfig = new TalonFXConfiguration();
@@ -33,9 +40,8 @@ public class Turret extends SubsystemBase {
 
   //for position control
   private double position = 0.0;
-    private double motorspeed = 0.0;
 
-  final MotionMagicExpoVoltage mmE_request = new MotionMagicExpoVoltage(0);
+  final PositionVoltage mmE_request = new PositionVoltage(0);
 
   /* PIDFF CONTROL */
   private LoggedTunableNumber k_S = new LoggedTunableNumber("turret_s", TurretConstants.turretSVA[0]);
@@ -52,13 +58,20 @@ public class Turret extends SubsystemBase {
 
 
   /** Creates a new Turret */
-  public Turret(CommandSwerveDrivetrain drivetrain) {
+  public Turret(CommandSwerveDrivetrain drivetrain, LEDSubsystem_WPIlib leds) {
     this.drivetrain = drivetrain;
+    this.leds = leds;
+
     /* SETUP CONFIG */
     
     // CURRENT LIMITS
+    turretMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     turretMotorConfig.CurrentLimits.SupplyCurrentLimit = TurretConstants.SupplyCurrentLimit;
     turretMotorConfig.CurrentLimits.StatorCurrentLimit = TurretConstants.StatorCurrentLimit;
+
+    turretMotorConfig.Feedback.FeedbackRemoteSensorID = 54;
+    turretMotorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    turretMotorConfig.ClosedLoopGeneral.ContinuousWrap = true;
     
     //PID CONSTANTS
     turretMotorConfig.Slot0.kS = k_S.get();
@@ -96,8 +109,7 @@ public class Turret extends SubsystemBase {
       case IDLE: 
         yield SystemState.IDLING;
       case AIM:
-        boolean isInAllianceZone = true;
-        if (isInAllianceZone) {
+        if (drivetrain.isInAllianceZone()) {
           yield SystemState.PASS_AIMING;
         } else {
           yield SystemState.HUB_AIMING;
@@ -117,22 +129,28 @@ public class Turret extends SubsystemBase {
   private void applyState(){
     switch(systemState){
       case IDLING:
-        motorspeed = 0;
         position = 0.0;
+        if (Math.abs(encoder.getAbsolutePosition().getValueAsDouble() - position) < TurretConstants.tolerance) { 
+          if (encoder.getPosition().getValueAsDouble() != encoder.getAbsolutePosition().getValueAsDouble()) {
+            encoder.setPosition(encoder.getAbsolutePosition().getValue());
+          }
+        }
         break;
       case PASS_AIMING:
+        leds.LED_SolidColor(LightsConstants.RBGColors.get("magenta"));
         position = TurretConstants.passAimPosition;
         break;
       case HUB_AIMING:
+        leds.LED_SolidColor(LightsConstants.RBGColors.get("yellow"));
         double calcTurretAngle = 
-          drivetrain.getPose().getRotation().getDegrees() - Math.atan(drivetrain.getYfromHub() / drivetrain.getXfromHub());
+          drivetrain.getTurretPose().getRotation().getDegrees() - Math.atan(drivetrain.getYfromHub() / drivetrain.getXfromHub());
         double desiredTurretAngle;
         break;
       case TRENCH_PRESETTING:
         position = TurretConstants.trenchPresetPosition;
         break;
       case TESTING:
-        motorspeed = -0.1;
+        position = .75;
         break;
     }
   }  
@@ -156,14 +174,22 @@ public class Turret extends SubsystemBase {
     }
   }
 
+  private void logValues() {
+    SmartDashboard.putNumber("Turret Absolute Position", encoder.getAbsolutePosition().getValueAsDouble());
+    SmartDashboard.putNumber("Turret Motor Position", turretMotor.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Turret Wanted Position", position);
+    SmartDashboard.putNumber("Turret Encoder Position", encoder.getPosition().getValueAsDouble());
+    SmartDashboard.putString("TURRET WANTED STATE", wantedState.toString());
+    SmartDashboard.putString("TURRET SYSTEM STATE", systemState.toString());
+  }
+
   @Override
   public void periodic() {
-    checkTunableValues();
+    logValues();
     systemState = changeCurrentSystemState();
     applyState();
     //example of how to control motor for position
     turretMotor.setControl(mmE_request.withPosition(position));
-    turretMotor.set(motorspeed);
   }
 
 }

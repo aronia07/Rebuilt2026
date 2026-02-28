@@ -55,33 +55,42 @@ public final class Constants {
     public static double distanceToHub;
     public static double passDistance;
 
-    public static int shooterMotionMagicExpoK_V;
-    public static int shooterMotionMagicExpoK_A;
-    public static int shooterMotionMagicAccel = 400; //rps^2
-    public static int shooterMotionMagicJerk = 4000; //rps^2/s
+    public static double shooterMotionMagicExpoK_V = 0.1;
+    public static double shooterMotionMagicExpoK_A = 0.1;
+    public static double shooterMotionMagicAccel = 400; //rps^2
+    public static double shooterMotionMagicJerk = 4000; //rps^2/s
 
     public static int SupplyCurrentLimit = 80;
     public static int StatorCurrentLimit = 80;
+    public static double homingThreshold;
+    public static double tolerance = 5;
 
     public static int hoodMotorID = 53;
     public static int shooterMotor1ID = 61;
     public static int shooterMotor2ID = 60;
+    
+    public static double[] hoodPID = {2.0, 0, 0};
+    public static double[] hoodSVA = {0.0, 0, 0};
 
-    public static double[] shooterPID = {0.1, 0, 0};
-    public static double[] shooterSVA = {0.0, 0.1, 0};
+    public static double[] shooterPID = {0.6, 0, 0};
+    public static double[] shooterSVA = {0.0, 0.117, 0};
     public enum ShooterWantedState {
       IDLE,
       WAIT,
+      TRENCH_SHOOT,
       PASS_SHOOT,
       HUB_SHOOT,
+      HOME,
       TEST
     }
     public enum SystemState {
       IDLING,
       ACTIVE_WAITING,
       INACTIVE_WAITING,
+      TRENCH_SHOOTING,
       PASS_SHOOTING,
       HUB_SHOOTING,
+      HOMING,
       TESTING
     }
   }
@@ -100,15 +109,14 @@ public final class Constants {
 
     public static double intakingMAXPosition = 10.022461;
     public static double intakingPosition = 10;
-    public static double intakingSpeed = -0.5;
+    public static double intakingSpeed = -0.8;
     public static double shootingPosition;
     public static double retractingPos = 0;
     public static double[] intakePID = {0.3, 0, 0};
     public static double[] intakeSVA = {0, 0.13, 0.01};
     public enum IntakeWantedState {
       IDLE,
-      INTAKE,
-      SHOOT, 
+      INTAKE, 
       RETRACT,
       RESET,
       SCORE
@@ -116,7 +124,6 @@ public final class Constants {
     public enum SystemState {
       IDLING,
       INTAKING,
-      SHOOTING,
       RETRACTING,
       RESETING,
       SCORING
@@ -137,11 +144,12 @@ public final class Constants {
     public static int turretMotorID = 50;
     public static int encoderID = 54;
 
-    public static int passAimPosition;
-    public static int hubAimPosition;
-    public static int trenchPresetPosition;
+    public static double passAimPosition = .75;
+    public static double hubAimPosition;
+    public static double trenchPresetPosition = .51;
+    public static double tolerance = 0.005;
 
-    public static double[] turretPID = {0, 0, 0};
+    public static double[] turretPID = {40, 0, 0};
     public static double[] turretSVA = {0, 0, 0};
 
     public enum TurretWantedState {
@@ -175,7 +183,7 @@ public final class Constants {
     public static int spindexerMotorID = 40;
 
     public static double feederIntakeSpeed;
-    public static double feederShootSpeed;
+    public static double feederShootSpeed = 0.8;
     
     public static double[] feederPID = {0, 0, 0};
     public static double[] feederSVA = {0, 0, 0};
