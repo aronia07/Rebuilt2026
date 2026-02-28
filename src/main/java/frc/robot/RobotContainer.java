@@ -45,6 +45,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -65,7 +66,7 @@ public class RobotContainer {
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   private final Intake intake = new Intake();
   private final Feeder feeder = new Feeder();
-  private final Turret turret = new Turret(drivetrain);
+  private final Turret turret = new Turret(drivetrain, normalLights);
   private final Shooter shooter = new Shooter();
   // private final Vision vision = new Vision();
   public SendableChooser<Command> sendableChooser = new SendableChooser<>();
@@ -160,7 +161,7 @@ public class RobotContainer {
     // driver.a().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(180))));
     // driver.b().whileTrue(drivetrain.applyRequest(() -> facingAngle.withTargetDirection(Rotation2d.fromDegrees(270))));
 
-
+    turret.setDefaultCommand(new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.AIM)));
     //intake
     driver.rightBumper()
       .onTrue(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.INTAKE)))

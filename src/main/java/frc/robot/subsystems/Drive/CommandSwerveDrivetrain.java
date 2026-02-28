@@ -71,6 +71,26 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.getState().Pose;
     }
 
+    public boolean isInAllianceZone() {
+        double xDistance = getPose().getX();
+        if (allianceColor.equals(Alliance.Blue)) {
+            if (xDistance > 0 && xDistance < 4) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else if (allianceColor.equals(Alliance.Blue)) {
+            if (xDistance > 12.53 && xDistance < 16) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+
     public Pose2d getTurretPose() {
         Pose2d turretPose = getPose().transformBy(VisionConstants.turretToCenter);
         return turretPose;

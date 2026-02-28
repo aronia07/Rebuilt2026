@@ -20,14 +20,17 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.LightsConstants;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.TurretConstants.TurretWantedState;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Lights.LEDSubsystem_WPIlib;
 import frc.robot.Constants.TurretConstants.SystemState;
 import frc.util.LoggedTunableNumber;
 
 public class Turret extends SubsystemBase {
   private final CommandSwerveDrivetrain drivetrain;
+  private final LEDSubsystem_WPIlib leds;
   /* MOTORS */
   private TalonFX turretMotor = new TalonFX(TurretConstants.turretMotorID, "rio");
   private TalonFXConfiguration turretMotorConfig = new TalonFXConfiguration();
@@ -55,8 +58,10 @@ public class Turret extends SubsystemBase {
 
 
   /** Creates a new Turret */
-  public Turret(CommandSwerveDrivetrain drivetrain) {
+  public Turret(CommandSwerveDrivetrain drivetrain, LEDSubsystem_WPIlib leds) {
     this.drivetrain = drivetrain;
+    this.leds = leds;
+
     /* SETUP CONFIG */
     
     // CURRENT LIMITS
@@ -104,12 +109,11 @@ public class Turret extends SubsystemBase {
       case IDLE: 
         yield SystemState.IDLING;
       case AIM:
-        boolean isInAllianceZone = true;
-        // if (isInAllianceZone) {
+        if (drivetrain.isInAllianceZone()) {
           yield SystemState.PASS_AIMING;
-        // } else {
-        //   yield SystemState.HUB_AIMING;
-        // }
+        } else {
+          yield SystemState.HUB_AIMING;
+        }
       case TRENCH_PRESET:
         yield SystemState.TRENCH_PRESETTING;
       case CLOSE_PRESET:
@@ -126,13 +130,20 @@ public class Turret extends SubsystemBase {
     switch(systemState){
       case IDLING:
         position = 0.0;
+        if (Math.abs(encoder.getAbsolutePosition().getValueAsDouble() - position) < TurretConstants.tolerance) { 
+          if (encoder.getPosition().getValueAsDouble() != encoder.getAbsolutePosition().getValueAsDouble()) {
+            encoder.setPosition(encoder.getAbsolutePosition().getValue());
+          }
+        }
         break;
       case PASS_AIMING:
+        leds.LED_SolidColor(LightsConstants.RBGColors.get("magenta"));
         position = TurretConstants.passAimPosition;
         break;
       case HUB_AIMING:
+        leds.LED_SolidColor(LightsConstants.RBGColors.get("yellow"));
         double calcTurretAngle = 
-          drivetrain.getPose().getRotation().getDegrees() - Math.atan(drivetrain.getYfromHub() / drivetrain.getXfromHub());
+          drivetrain.getTurretPose().getRotation().getDegrees() - Math.atan(drivetrain.getYfromHub() / drivetrain.getXfromHub());
         double desiredTurretAngle;
         break;
       case TRENCH_PRESETTING:

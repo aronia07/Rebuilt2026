@@ -63,6 +63,7 @@ public final class Constants {
     public static int SupplyCurrentLimit = 80;
     public static int StatorCurrentLimit = 80;
     public static double homingThreshold;
+    public static double tolerance = 5;
 
     public static int hoodMotorID = 53;
     public static int shooterMotor1ID = 61;
@@ -143,9 +144,10 @@ public final class Constants {
     public static int turretMotorID = 50;
     public static int encoderID = 54;
 
-    public static double passAimPosition = 0.25;
+    public static double passAimPosition = .75;
     public static double hubAimPosition;
-    public static double trenchPresetPosition = 0.51;
+    public static double trenchPresetPosition = .51;
+    public static double tolerance = 0.005;
 
     public static double[] turretPID = {40, 0, 0};
     public static double[] turretSVA = {0, 0, 0};

@@ -187,6 +187,10 @@ public class Shooter extends SubsystemBase {
       case IDLING:
         motorspeed = 0.0;
         position = 0.0;
+        if (hoodMotor.getPosition().getValueAsDouble() != 0 && hoodMotor.getSupplyCurrent().getValueAsDouble() >= ShooterConstants.homingThreshold) {
+          hoodMotor.setPosition(0);
+          position = 0;
+        } 
         break;
       case ACTIVE_WAITING:
         motorspeed = ShooterConstants.activeWaitingSpeed;
@@ -209,11 +213,12 @@ public class Shooter extends SubsystemBase {
         position = ShooterConstants.hoodAngleInterpolation.getPrediction(ShooterConstants.passDistance);
         break;
       case HOMING:
-        position = -.2;
+        position = -.1;
         if (hoodMotor.getSupplyCurrent().getValueAsDouble() >= ShooterConstants.homingThreshold) {
           hoodMotor.setPosition(0);
           position = 0;
         } 
+        setWantedShooterState(ShooterWantedState.IDLE);
       case TESTING:
         motorspeed = 62;
         position = 7.5;
@@ -247,7 +252,7 @@ public class Shooter extends SubsystemBase {
   }
 
   private String getAlliance(){
-    if(DriverStation.getAlliance().toString() == "Alliance.Red"){
+    if(DriverStation.getAlliance().get() == Alliance.Red){
       return "R";
     } else{
       return "B";
