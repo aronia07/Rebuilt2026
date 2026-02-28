@@ -314,9 +314,9 @@ public final class Constants {
         Units.inchesToMeters(-6), 
         new Rotation2d());
 
-    public static Translation2d RED_HUB_POSE =
-      new Translation2d(Units.inchesToMeters(4.62), Units.inchesToMeters(4.03));
     public static Translation2d BLUE_HUB_POSE =
+      new Translation2d(Units.inchesToMeters(4.62), Units.inchesToMeters(4.03));
+    public static Translation2d RED_HUB_POSE =
       new Translation2d(Units.inchesToMeters(11.92), Units.inchesToMeters(4.03));;
 
     public static double bumperToBumper; // inches
