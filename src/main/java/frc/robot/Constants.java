@@ -244,6 +244,21 @@ public final class Constants {
         Map.entry("magenta", new Color(255, 0, 255)),
         Map.entry("bright", new Color(234, 255, 48)));
 
+    // RBG Color Map (New LEDs)
+    public static Map<String, Color> RBGColors = Map.ofEntries(
+        Map.entry("black", new Color(0, 0, 0)),
+        Map.entry("white", new Color(255, 255, 255)),
+        Map.entry("red", new Color(255, 0, 0)),
+        Map.entry("green", new Color(0, 0, 255)),
+        Map.entry("blue", new Color(0, 255, 0)),
+        Map.entry("gold", new Color(175, 6, 184)),
+        Map.entry("team_Gold", new Color(179, 27, 134)),
+        Map.entry("yellow", new Color(255, 0, 255)),
+        Map.entry("orange", new Color(255, 0, 165)),
+        Map.entry("pink", new Color(255, 147, 20)),
+        Map.entry("magenta", new Color(255, 255, 0)),
+        Map.entry("bright", new Color(234, 48, 255)));
+
     // GRB Color Map (Old LEDs)
     public static Map<String, Color> GRBColors = Map.ofEntries(
         Map.entry("black", new Color(0, 0, 0)),
@@ -274,7 +289,7 @@ public final class Constants {
         Map.entry("magenta", new Color(0, 255, 255)),
         Map.entry("bright", new Color(255, 48, 234)));
 
-    // BRG Color Map (New LED strip)
+    // BRG Color Map
     public static Map<String, Color> BRGColors = Map.ofEntries(
         Map.entry("black", new Color(0, 0, 0)),                 // (0,0,0) → (0,0,0)
         Map.entry("white", new Color(255, 255, 255)),           // (255,255,255) → (255,255,255)

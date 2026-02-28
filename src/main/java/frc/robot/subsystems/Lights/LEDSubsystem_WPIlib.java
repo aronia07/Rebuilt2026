@@ -87,8 +87,9 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
     // setDefaultCommand(runPattern(LEDPattern.solid(Color.kBlack),
     // false).withName("Off"));
 
-    //LED_Twinkle(LightsConstants.GRBColors.get("black"), LightsConstants.GRBColors.get("yellow"), 2);
-    //LED_ScrollPatternRelative(LEDPattern.rainbow(255, 64), 100);
+    LED_Twinkle(LightsConstants.RBGColors.get("black"), LightsConstants.RBGColors.get("gold"), 2);
+    //LED_ScrollPatternRelative(LEDPattern.rainbow(255, 120), 100);
+    // LED_SolidColor(LightsConstants.RBGColors.get("blue"));  //RBG - ADD
   }
 
   /**
@@ -208,8 +209,8 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
 
       for (int i = 0; i < kLength; i++) {
         if (twinkleMask[i]) {
-          double phase = ((t + twinklePhaseOffset[i]) % twinklePeriod) / twinklePeriod;
-          double b = 0.5 + 0.5 * Math.sin(phase * 2 * Math.PI);
+          double phase = ((timer.get() + twinklePhaseOffset[i]) % twinklePeriod) / twinklePeriod;
+          double b = 0.5 - 0.5 * Math.cos(phase * 2 * Math.PI);   // double b = 0.5 + 0.5 * Math.sin(phase * 2 * Math.PI); OR double b = 0.5 - 0.5 * Math.cos(phase * 2 * Math.PI);
 
           Color c = new Color(
               twinkleColor.red * b,
@@ -223,9 +224,9 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
         }
       }
 
-      if (t > twinklePeriod * 0.6) {
+      if (t > twinklePeriod) {  // Was * 0.6, but it means leds can stop mid transition, so NO!
         randomizeTwinkleLEDs();
-        timer.reset();
+        // timer.reset();
       }
     }
 
@@ -237,18 +238,19 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
    * Random assignment of LEDs
   */
   private void randomizeTwinkleLEDs() {
+    int count = 10; // number of LEDs to twinkle at a time, can be tuned
+
     for (int i = 0; i < kLength; i++) {
       twinkleMask[i] = false;
     }
-
-    int max = Math.min(3, kLength);
+    int max = Math.min(count, kLength);
 
     for (int i = 0; i < max; i++) {
       int index = random.nextInt(kLength);
       twinkleMask[index] = true;
 
       // random phase so LEDs do not sync
-      twinklePhaseOffset[index] = random.nextDouble() * twinklePeriod;
+      twinklePhaseOffset[index] = -random.nextDouble() * twinklePeriod * 0.5;
     }
   }
   /**
