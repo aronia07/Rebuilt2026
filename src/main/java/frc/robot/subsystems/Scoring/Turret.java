@@ -173,36 +173,37 @@ public class Turret extends SubsystemBase {
         // } if (convertedTurretAngle > CCWlimit) {
         //   convertedTurretAngle = convertedTurretAngle - 1;
         // }
+
         // dealing with wrap OPTION 1
-        if(desiredTurretAngle < (360*CWLimit)) {
-          target = convertedTurretAngle + 1;
-        } else if (desiredTurretAngle > (360*CCWlimit)) {
-          target = convertedTurretAngle - 1;
-        } else if (desiredTurretAngle > (360*CWLimit) && desiredTurretAngle < (0)) {
-          double option1 = convertedTurretAngle;
-          double option2 = convertedTurretAngle + 1;
-          double diffToOption1 = Math.abs(currentTurretToRobotAngle - option1);
-          double diffToOption2 = Math.abs(currentTurretToRobotAngle - option2);
-          target = diffToOption1 < diffToOption2 ? option1 : option2;
-        } else if (desiredTurretAngle < (360*CCWlimit) && desiredTurretAngle > (0)) {
-          double option1 = convertedTurretAngle;
-          double option2 = convertedTurretAngle - 1;
-          double diffToOption1 = Math.abs(currentTurretToRobotAngle - option1);
-          double diffToOption2 = Math.abs(currentTurretToRobotAngle - option2);
-          target = diffToOption1 < diffToOption2 ? option1 : option2;
-        }
+        // if(desiredTurretAngle < (360*CWLimit)) {
+        //   target = convertedTurretAngle + 1;
+        // } else if (desiredTurretAngle > (360*CCWlimit)) {
+        //   target = convertedTurretAngle - 1;
+        // } else if (desiredTurretAngle > (360*CWLimit) && desiredTurretAngle < (0)) {
+        //   double option1 = convertedTurretAngle;
+        //   double option2 = convertedTurretAngle + 1;
+        //   double diffToOption1 = Math.abs(currentTurretToRobotAngle - option1);
+        //   double diffToOption2 = Math.abs(currentTurretToRobotAngle - option2);
+        //   target = diffToOption1 < diffToOption2 ? option1 : option2;
+        // } else if (desiredTurretAngle < (360*CCWlimit) && desiredTurretAngle > (0)) {
+        //   double option1 = convertedTurretAngle;
+        //   double option2 = convertedTurretAngle - 1;
+        //   double diffToOption1 = Math.abs(currentTurretToRobotAngle - option1);
+        //   double diffToOption2 = Math.abs(currentTurretToRobotAngle - option2);
+        //   target = diffToOption1 < diffToOption2 ? option1 : option2;
+        // }
         
         // Dealing with wrap Option 2
         // compute shortest delta between branches
-        // double delta = currentTurretToRobotAngle - (currentTurretToRobotAngle);
-        // delta = Math.IEEEremainder(delta, 1.0);
+        double delta = convertedTurretAngle - (currentTurretToRobotAngle);
+        delta = Math.IEEEremainder(delta, 1.0);
 
-        // // now apply
-        // target = currentTurretToRobotAngle + delta;
+        // now apply
+        target = currentTurretToRobotAngle + delta;
 
-        // // now enforce mechanical limits with wrap only if truly needed
-        // while (target > CCWlimit) target -= 1.0;
-        // while (target < CWLimit) target += 1.0;
+        // now enforce mechanical limits with wrap only if truly needed
+        while (target > CCWlimit) target -= 1.0;
+        while (target < CWLimit) target += 1.0;
 
         // probe
         SmartDashboard.putNumber("Turret Setpoint with adjustment", target);
