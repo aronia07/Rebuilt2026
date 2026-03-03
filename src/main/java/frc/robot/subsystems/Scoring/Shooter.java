@@ -217,11 +217,11 @@ public class Shooter extends SubsystemBase {
         setWantedShooterState(ShooterWantedState.IDLE);
       case TESTING:
         // change these to find interpolation values
-        motorspeed = 62;
-        position = 7.5;
+        motorspeed = 55;
+        position = 6.3;
         break;
     }
-  }
+  } 
 
 
   /**
