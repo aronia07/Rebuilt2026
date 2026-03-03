@@ -202,12 +202,18 @@ public class RobotContainer {
         new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)),
         new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE)),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE))));
-    //shooting
+    
+    // shooting
     operator.a()
-      .onTrue(new ParallelCommandGroup(
-        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TEST))))
+      .onTrue(new SequentialCommandGroup(
+          new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TEST)),
+          waitForShooter(),
+          new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.FEEDTEST))
+      ))
       .onFalse(new ParallelCommandGroup(
-        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE))));
+          new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)),
+          new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE))
+      ));
 
     operator.rightTrigger()
       .onTrue(new SequentialCommandGroup(
