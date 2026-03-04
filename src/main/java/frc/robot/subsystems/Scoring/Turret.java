@@ -29,12 +29,14 @@ import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.TurretConstants.TurretWantedState;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Lights.LEDSubsystem_WPIlib;
+import frc.robot.subsystems.Lights.LEDSubsystem_WPIlib.LEDTarget;
 import frc.robot.Constants.TurretConstants.SystemState;
 import frc.util.LoggedTunableNumber;
 
 public class Turret extends SubsystemBase {
   private final CommandSwerveDrivetrain drivetrain;
   private final LEDSubsystem_WPIlib leds;
+  private LEDTarget currentLEDTarget = LEDTarget.SIDES;
   /* MOTORS */
   private TalonFX turretMotor = new TalonFX(TurretConstants.turretMotorID, "rio");
   private TalonFXConfiguration turretMotorConfig = new TalonFXConfiguration();
@@ -146,12 +148,12 @@ public class Turret extends SubsystemBase {
         position = 0.0;
         break;
       case PASS_AIMING:
-        leds.LED_SolidColor(LightsConstants.RBGColors.get("magenta"));
+        leds.LED_SolidColor(LEDTarget.SIDES, LightsConstants.RBGColors.get("magenta"));
         position = TurretConstants.passAimPosition;
         break;
       case HUB_AIMING:
         double target = 0;
-        leds.LED_SolidColor(LightsConstants.RBGColors.get("yellow"));
+        leds.LED_SolidColor(LEDTarget.SIDES, LightsConstants.RBGColors.get("yellow"));
         double currentTurretToRobotAngle = turretMotor.getPosition().getValueAsDouble();
         //calculate robot angle relative to field
         double currentRobotAngle = drivetrain.getTurretPose().getRotation().getDegrees();

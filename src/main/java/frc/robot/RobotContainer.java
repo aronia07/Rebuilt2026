@@ -225,7 +225,7 @@ public class RobotContainer {
     
     //lights
     operator.povUp()
-      .onTrue(new SetBreathingPattern(normalLights, LEDPattern.rainbow(255, 150), 3));
+      .onTrue(new SetBreathingPattern(normalLights, LEDSubsystem_WPIlib.LEDTarget.SIDES, LEDPattern.rainbow(255, 150), 3));
     operator.povDown()
       .onTrue(new ResetLED(normalLights));
 
