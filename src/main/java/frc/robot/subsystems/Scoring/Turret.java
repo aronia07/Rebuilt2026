@@ -22,7 +22,10 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.LEDPattern.GradientType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LightsConstants;
 import frc.robot.Constants.TurretConstants;
@@ -122,12 +125,10 @@ public class Turret extends SubsystemBase {
     return switch (wantedState) {
       case IDLE: 
         yield SystemState.IDLING;
-      case AIM:
-        // if (drivetrain.isInAllianceZone()) {
+      case AIM_HUB:
           yield SystemState.HUB_AIMING;
-        // } else {
-        //   yield SystemState.PASS_AIMING;
-        // }
+      case AIM_PASS:
+        yield SystemState.PASS_AIMING;
       case TRENCH_PRESET:
         yield SystemState.TRENCH_PRESETTING;
       case HUB_PRESET:
@@ -146,12 +147,11 @@ public class Turret extends SubsystemBase {
         position = 0.0;
         break;
       case PASS_AIMING:
-        leds.LED_SolidColor(LightsConstants.RBGColors.get("magenta"));
         position = TurretConstants.passAimPosition;
         break;
       case HUB_AIMING:
         double target = 0;
-        leds.LED_SolidColor(LightsConstants.RBGColors.get("yellow"));
+        leds.LED_Blinking(LEDPattern.gradient(GradientType.kContinuous, Color.kDarkBlue, Color.kAliceBlue), 2, 1);
         double currentTurretToRobotAngle = turretMotor.getPosition().getValueAsDouble();
         //calculate robot angle relative to field
         double currentRobotAngle = drivetrain.getTurretPose().getRotation().getDegrees();
@@ -221,6 +221,14 @@ public class Turret extends SubsystemBase {
         break;
     }
   }  
+
+  public boolean turretIsReady() {
+    if ((turretMotor.getPosition().getValueAsDouble() - position) < TurretConstants.tolerance) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
 
   /**

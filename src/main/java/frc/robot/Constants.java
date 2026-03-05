@@ -17,7 +17,11 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.util.Point;
 import frc.util.PolynomialRegression;
+
+import java.util.Arrays;
+import java.util.List;
 // Lights
 import java.util.Map;
 import static edu.wpi.first.units.Units.Meters;
@@ -43,8 +47,37 @@ public final class Constants {
   public static class ShooterConstants {
     public static double activeWaitingSpeed;
     public static double inactiveWaitingSpeed;
-    public static PolynomialRegression hoodAngleInterpolation;
-    public static PolynomialRegression shooterSpeedInterpolation;
+    public static PolynomialRegression hoodAngleInterpolation = 
+    new PolynomialRegression(
+      Arrays.asList(
+        new Point(2, 0),
+        new Point(3, 3),
+        new Point(4, 5.5),
+        new Point(5, 6.3),
+        new Point(6, 7.5)
+      ),
+       2);
+    
+    public static PolynomialRegression shooterSpeedInterpolation = 
+    new PolynomialRegression(
+      Arrays.asList(
+        new Point(2, 47),
+        new Point(3, 50),
+        new Point(4, 50),
+        new Point(5, 55),
+        new Point(6, 62)
+      ),
+       2);
+    public static PolynomialRegression timeOfFlightInterpolation = 
+    new PolynomialRegression(
+      Arrays.asList(
+        new Point(2, .975),
+        new Point(3, 1.125),
+        new Point(4, 1.175),
+        new Point(5, 1.18),
+        new Point(6, 1.28)
+      ),
+       2);
     public static double distanceToHub;
     public static double passDistance;
 
@@ -74,7 +107,9 @@ public final class Constants {
       PASS_SHOOT,
       HUB_SHOOT,
       HOME,
-      TEST
+      TEST,
+      RETRACT_AUTO,
+      TURN_ON_AUTO
     }
     public enum SystemState {
       IDLING,
@@ -84,7 +119,9 @@ public final class Constants {
       PASS_SHOOTING,
       HUB_SHOOTING,
       HOMING,
-      TESTING
+      TESTING,
+      RETRACTING_AUTO,
+      TURNING_ON_AUTO
     }
   }
 
@@ -147,7 +184,8 @@ public final class Constants {
 
     public enum TurretWantedState {
       IDLE,
-      AIM,
+      AIM_PASS,
+      AIM_HUB,
       TRENCH_PRESET,
       HUB_PRESET,
       TEST
