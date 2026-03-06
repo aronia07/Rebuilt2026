@@ -358,7 +358,7 @@ public final class Constants {
         Units.inchesToMeters(17.467)),
       new Rotation3d(
         0, 
-        Units.degreesToRadians(23), 
+        Units.degreesToRadians(20), 
         0)
       );
 

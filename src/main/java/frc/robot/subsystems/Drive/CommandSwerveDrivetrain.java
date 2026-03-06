@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -102,19 +103,193 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         double xSpeed = getState().Speeds.vxMetersPerSecond;
         double ySpeed = getState().Speeds.vyMetersPerSecond;
         double rotSpeed = getState().Speeds.omegaRadiansPerSecond;
-        Pose2d futurePose = turretPose.plus(
-            new Transform2d(new Translation2d(-xSpeed, -ySpeed).times(timeOfFlight),
-            new Rotation2d(-rotSpeed).times(timeOfFlight))
-        );
+        ChassisSpeeds fieldCentric = ChassisSpeeds.fromRobotRelativeSpeeds(xSpeed, ySpeed, rotSpeed, getCurrentTurretPose().getRotation());
+        double futurePoseX = turretPose.getX() + fieldCentric.vxMetersPerSecond*timeOfFlight;
+        double futurePoseY = turretPose.getY() + fieldCentric.vyMetersPerSecond*timeOfFlight;
+        double futurePoseRot = turretPose.getRotation().getRadians() + fieldCentric.omegaRadiansPerSecond*timeOfFlight;
+        Pose2d futurePose = new Pose2d(futurePoseX, futurePoseY, Rotation2d.fromRadians(futurePoseRot));
+        // Pose2d futurePose = turretPose.plus(
+        //     new Transform2d(new Translation2d(-xSpeed, -ySpeed).times(timeOfFlight),
+        //     new Rotation2d(-rotSpeed).times(timeOfFlight))
+        // );
+        
+
         TheField.getObject("turret pose").setPose(turretPose);
+        TheField.getObject("turret pose").setPose(futurePose);
+
         return futurePose;
     }
 
-    //SOTF Solution 1
+    public Translation2d getSOTFTurretAngle() {
+
+        // Current turret pose
+        Pose2d turretPose = getCurrentTurretPose();
+
+        // Hub position
+        Translation2d hub;
+        if(DriverStation.getAlliance().get() == Alliance.Red) {
+                hub = VisionConstants.RED_HUB_POSE;
+            } else {
+                hub = VisionConstants.BLUE_HUB_POSE;
+            }
+
+        // Vector from turret to hub
+        Translation2d toTarget =
+            hub.minus(turretPose.getTranslation());
+
+        double distance = toTarget.getNorm();
+
+        // Time of flight from your interpolation table
+        double timeOfFlight =
+            ShooterConstants.timeOfFlightInterpolation
+                .getPrediction(distance);
+
+        // Convert robot speeds to field relative
+        ChassisSpeeds fieldSpeeds =
+            ChassisSpeeds.fromRobotRelativeSpeeds(
+                getState().Speeds,
+                getPose().getRotation()
+            );
+
+        // Robot translational velocity
+        Translation2d robotVelocity =
+            new Translation2d(
+                fieldSpeeds.vxMetersPerSecond,
+                fieldSpeeds.vyMetersPerSecond
+            );
+
+        // --- TRANSLATIONAL SOTF CORRECTION ---
+
+        Translation2d translationalCorrection =
+            robotVelocity.times(timeOfFlight);
+
+        // --- ROTATIONAL SOTF CORRECTION ---
+
+        double omega = fieldSpeeds.omegaRadiansPerSecond;
+
+        Translation2d turretOffset =
+            VisionConstants.turretToCenter.getTranslation();
+
+        // velocity induced by robot rotation
+        Translation2d rotationalVelocity =
+            new Translation2d(
+                -omega * turretOffset.getY(),
+                omega * turretOffset.getX()
+            );
+
+        Translation2d rotationalCorrection =
+            rotationalVelocity.times(timeOfFlight);
+
+        // --- COMBINED CORRECTION ---
+
+        Translation2d correctedVector =
+            toTarget
+                .minus(translationalCorrection)
+                .minus(rotationalCorrection);
+
+        // Final turret aim angle
+        Rotation2d aimAngle = correctedVector.getAngle();
+
+        // Debug visualization
+        TheField.getObject("turret pose")
+            .setPose(turretPose);
+
+        TheField.getObject("corrected shot vector")
+            .setPose(
+                new Pose2d(
+                    turretPose.getTranslation().plus(correctedVector),
+                    aimAngle
+                )
+            );
+
+        return correctedVector;
+    }
+
+//     public Rotation2d getSOTFTurretAngle() {
+
+//     Pose2d turretPose = getCurrentTurretPose();
+
+//     Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+
+//     Translation2d realTarget =
+//         alliance == Alliance.Red
+//             ? VisionConstants.RED_HUB_POSE
+//             : VisionConstants.BLUE_HUB_POSE;
+
+//     Translation2d turretPos = turretPose.getTranslation();
+
+//     // Convert robot velocity to field frame
+//     ChassisSpeeds fieldSpeeds =
+//         ChassisSpeeds.fromRobotRelativeSpeeds(
+//             getState().Speeds,
+//             getPose().getRotation()
+//         );
+
+//     Translation2d robotVelocity =
+//         new Translation2d(
+//             fieldSpeeds.vxMetersPerSecond,
+//             fieldSpeeds.vyMetersPerSecond
+//         );
+
+//     double omega = fieldSpeeds.omegaRadiansPerSecond;
+
+//     // turret offset from robot center
+//     Translation2d turretOffset =
+//         VisionConstants.turretToCenter.getTranslation();
+
+//     // rotational velocity of turret
+//     Translation2d rotationalVelocity =
+//         new Translation2d(
+//             -omega * turretOffset.getY(),
+//              omega * turretOffset.getX()
+//         );
+
+//     Translation2d totalRobotVelocity =
+//         robotVelocity.plus(rotationalVelocity);
+
+//     Translation2d virtualTarget = realTarget;
+
+//     // ITERATIVE SOLVE (2 passes)
+//     for (int i = 0; i < 2; i++) {
+
+//         Translation2d toTarget =
+//             virtualTarget.minus(turretPos);
+
+//         double distance = toTarget.getNorm();
+
+//         double timeOfFlight =
+//             ShooterConstants.timeOfFlightInterpolation
+//                 .getPrediction(distance);
+
+//         virtualTarget =
+//             realTarget.minus(
+//                 totalRobotVelocity.times(timeOfFlight)
+//             );
+//     }
+
+//     Translation2d correctedVector =
+//         virtualTarget.minus(turretPos);
+
+//     Rotation2d turretAngle =
+//         correctedVector.getAngle()
+//             .minus(getPose().getRotation());
+
+//     return turretAngle;
+//     }
+
+    
     public Pose2d getCurrentTurretPose() {
         Pose2d turretPose = getPose().transformBy(VisionConstants.turretToCenter);
         turretPose = turretPose.rotateAround(turretPose.getTranslation(), Rotation2d.k180deg);
         return turretPose;
+    }
+
+    public Translation2d getHub() {
+        Translation2d goalLocation = 
+        DriverStation.getAlliance().get() == Alliance.Red ? 
+            VisionConstants.RED_HUB_POSE : 
+            VisionConstants.BLUE_HUB_POSE;
+        return goalLocation;
     }
 
     //SOTF Solution 2
@@ -226,7 +401,28 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     estPose,
                     Utils.fpgaToCurrentTime(visionEst.get().timestampSeconds),
                     estStdDevs);
-        } else if (visionEst.isPresent()) {
+        } else if (visionEst.isPresent() && visionEst2.isPresent()) {
+            var estPose = vision.getPoseFromCams12();
+            var estStdDevs = vision.getEstimationStdDevs(estPose);
+            super.addVisionMeasurement(
+                    estPose,
+                    Utils.fpgaToCurrentTime(visionEst.get().timestampSeconds),
+                    estStdDevs);
+        }else if (visionEst2.isPresent() && visionEst3.isPresent()) {
+            var estPose = vision.getPoseFromCams23();
+            var estStdDevs = vision.getEstimationStdDevs(estPose);
+            super.addVisionMeasurement(
+                    estPose,
+                    Utils.fpgaToCurrentTime(visionEst.get().timestampSeconds),
+                    estStdDevs);
+        } else if (visionEst.isPresent() && visionEst3.isPresent()) {
+            var estPose = vision.getPoseFromCams13();
+            var estStdDevs = vision.getEstimationStdDevs(estPose);
+            super.addVisionMeasurement(
+                    estPose,
+                    Utils.fpgaToCurrentTime(visionEst.get().timestampSeconds),
+                    estStdDevs);
+        }else if (visionEst.isPresent()) {
             visionEst.ifPresent(est -> {
                 var estPose = est.estimatedPose.toPose2d();
                 var estStdDevs = vision.getEstimationStdDevs(estPose);

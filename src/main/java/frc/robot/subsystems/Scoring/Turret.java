@@ -21,6 +21,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.LEDPattern.GradientType;
@@ -151,49 +152,20 @@ public class Turret extends SubsystemBase {
         break;
       case HUB_AIMING:
         double target = 0;
-        leds.LED_Blinking(LEDPattern.gradient(GradientType.kContinuous, Color.kDarkBlue, Color.kAliceBlue), 2, 1);
+        // leds.LED_Blinking(LEDPattern.gradient(GradientType.kContinuous, Color.kDarkBlue, Color.kAliceBlue), 2, 1);
         double currentTurretToRobotAngle = turretMotor.getPosition().getValueAsDouble();
         //calculate robot angle relative to field
-        double currentRobotAngle = drivetrain.getTurretPose().getRotation().getDegrees();
+        // Rotation2d currentRobotAngle = drivetrain.getTurretPose().getRotation();
+        Rotation2d currentRobotAngle = drivetrain.getSOTFTurretAngle().getAngle();
+
         // calculate desired angle of turret relative to hub
-        double angleToHub = Units.radiansToDegrees(Math.atan2(drivetrain.getYfromHub(), drivetrain.getXfromHub()));
+        double angleToHub = (Math.atan2(drivetrain.getYfromHub(), drivetrain.getXfromHub()));
 
         // calculate desired angle of turret relative to robot
-        double desiredTurretAngle = angleToHub - currentRobotAngle;
+        Rotation2d desiredTurretAngle = Rotation2d.fromRadians(angleToHub).minus(currentRobotAngle);
         // convert to rotations
-        double convertedTurretAngle = desiredTurretAngle/360;
-
-        // probes
-        SmartDashboard.putNumber("Calculated Turret Wanted Angle", desiredTurretAngle);
-        SmartDashboard.putNumber("Converted Turret Wanted Angle", convertedTurretAngle);
-
-        //adjusting for physical limits
-        // if(convertedTurretAngle < CWLimit) {
-        //   convertedTurretAngle = convertedTurretAngle + 1;
-        // } if (convertedTurretAngle > CCWlimit) {
-        //   convertedTurretAngle = convertedTurretAngle - 1;
-        // }
-
-        // dealing with wrap OPTION 1
-        // if(desiredTurretAngle < (360*CWLimit)) {
-        //   target = convertedTurretAngle + 1;
-        // } else if (desiredTurretAngle > (360*CCWlimit)) {
-        //   target = convertedTurretAngle - 1;
-        // } else if (desiredTurretAngle > (360*CWLimit) && desiredTurretAngle < (0)) {
-        //   double option1 = convertedTurretAngle;
-        //   double option2 = convertedTurretAngle + 1;
-        //   double diffToOption1 = Math.abs(currentTurretToRobotAngle - option1);
-        //   double diffToOption2 = Math.abs(currentTurretToRobotAngle - option2);
-        //   target = diffToOption1 < diffToOption2 ? option1 : option2;
-        // } else if (desiredTurretAngle < (360*CCWlimit) && desiredTurretAngle > (0)) {
-        //   double option1 = convertedTurretAngle;
-        //   double option2 = convertedTurretAngle - 1;
-        //   double diffToOption1 = Math.abs(currentTurretToRobotAngle - option1);
-        //   double diffToOption2 = Math.abs(currentTurretToRobotAngle - option2);
-        //   target = diffToOption1 < diffToOption2 ? option1 : option2;
-        // }
+        double convertedTurretAngle = desiredTurretAngle.getDegrees()/360;
         
-        // Dealing with wrap Option 2
         // compute shortest delta between branches
         double delta = convertedTurretAngle - (currentTurretToRobotAngle);
         delta = Math.IEEEremainder(delta, 1.0);

@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.ShooterConstants.ShooterWantedState;
 import frc.robot.Constants.ShooterConstants.SystemState;
 import frc.robot.subsystems.Drive.CommandSwerveDrivetrain;
@@ -213,8 +214,12 @@ public class Shooter extends SubsystemBase {
         position = 5.5;
         break;
       case HUB_SHOOTING:
-        motorspeed = ShooterConstants.shooterSpeedInterpolation.getPrediction(drivetrain.getDistanceFromHub());
-        position = ShooterConstants.hoodAngleInterpolation.getPrediction(drivetrain.getDistanceFromHub());
+        motorspeed = ShooterConstants.shooterSpeedInterpolation
+          .getPrediction(
+            drivetrain.getSOTFTurretAngle().getDistance(drivetrain.getHub()));
+        position = ShooterConstants.hoodAngleInterpolation
+          .getPrediction(
+            drivetrain.getSOTFTurretAngle().getDistance(drivetrain.getHub()));
         break;
       case PASS_SHOOTING:
         if(drivetrain.getPose().getY() > 4.03) {
