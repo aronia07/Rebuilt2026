@@ -146,7 +146,7 @@ public class Shooter extends SubsystemBase {
     if (!shooterMotor2Status.isOK()) {
       System.out.println("Could not apply configs, error code: " + shooterMotor2Status.toString() + shooterMotor2.getDeviceID());
     }
-    // hoodMotor.setPosition(0);
+    hoodMotor.setPosition(0);
   }
 
   public void setWantedShooterState(ShooterWantedState desiredState) {
@@ -220,11 +220,11 @@ public class Shooter extends SubsystemBase {
         if(drivetrain.getPose().getY() > 4.03) {
           motorspeed = ShooterConstants.shooterSpeedInterpolation.getPrediction(
             Math.hypot(drivetrain.getXfromLocation(new Pose2d(0.5, 7.5, new Rotation2d())), drivetrain.getYfromLocation(new Pose2d(0.5, 7.5, new Rotation2d()))));
-          position = ShooterConstants.hoodAngleInterpolation.getPrediction(
-            Math.hypot(drivetrain.getXfromLocation(new Pose2d(0.5, 7.5, new Rotation2d())), drivetrain.getYfromLocation(new Pose2d(0.5, 7.5, new Rotation2d()))));
+          position = Math.min(ShooterConstants.hoodAngleInterpolation.getPrediction(
+            Math.hypot(drivetrain.getXfromLocation(new Pose2d(0.5, 7.5, new Rotation2d())), drivetrain.getYfromLocation(new Pose2d(0.5, 7.5, new Rotation2d())))), 8);
         } else {
           motorspeed = ShooterConstants.shooterSpeedInterpolation.getPrediction(Math.hypot(drivetrain.getXfromLocation(new Pose2d(0.5, 0.5, new Rotation2d())), drivetrain.getYfromLocation(new Pose2d(0.5, 0.5, new Rotation2d()))));
-          position = ShooterConstants.hoodAngleInterpolation.getPrediction(Math.hypot(drivetrain.getXfromLocation(new Pose2d(0.5, 0.5, new Rotation2d())), drivetrain.getYfromLocation(new Pose2d(0.5, 0.5, new Rotation2d()))));
+          position = Math.min(ShooterConstants.hoodAngleInterpolation.getPrediction(Math.hypot(drivetrain.getXfromLocation(new Pose2d(0.5, 0.5, new Rotation2d())), drivetrain.getYfromLocation(new Pose2d(0.5, 0.5, new Rotation2d())))), 8);
         }
         break;
       case HOMING:

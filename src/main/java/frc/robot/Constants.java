@@ -174,12 +174,12 @@ public final class Constants {
     public static int turretMotorID = 50;
     public static int encoderID = 54;
 
-    public static double passAimPosition;
+    public static double passAimPosition = 0;
     public static double hubPresetPosition;
     public static double trenchPresetPosition = .51;
-    public static double tolerance = 0.005;
+    public static double tolerance = 0.007;
 
-    public static double[] turretPID = {40, 0, 0};
+    public static double[] turretPID = {51, 0, 0};
     public static double[] turretSVA = {0, 0, 0};
 
     public enum TurretWantedState {
@@ -345,9 +345,9 @@ public final class Constants {
         new Rotation2d());
 
     public static Translation2d BLUE_HUB_POSE =
-      new Translation2d(4.62, 4.03);
+      new Translation2d(4.62, 3.53); //was 4.03
     public static Translation2d RED_HUB_POSE =
-      new Translation2d(11.92, 4.03);;
+      new Translation2d(11.92, 3.53); //was 4.03
 
     public static double bumperToBumper; // inches
 
@@ -364,7 +364,7 @@ public final class Constants {
 
     public static Transform3d kRobotToCam2 = new Transform3d(
       new Translation3d(
-        -(Units.inchesToMeters(12.889)), 
+        -(Units.inchesToMeters(13.5)), 
         Units.inchesToMeters(0.836),
         Units.inchesToMeters(9.317)),
       new Rotation3d(
@@ -375,7 +375,7 @@ public final class Constants {
 
     public static Transform3d kRobotToCam3 = new Transform3d(
       new Translation3d(
-        -(Units.inchesToMeters(12.888)), 
+        -(Units.inchesToMeters(13.5)), 
         -(Units.inchesToMeters(12.837)),
         Units.inchesToMeters(9.378)),
       new Rotation3d(
@@ -389,7 +389,7 @@ public final class Constants {
     public static String camera3Name = "camera3";
 
     /* standard deviations for vision calculations */
-    public static edu.wpi.first.math.Vector<N3> kSingleTagStdDevs = VecBuilder.fill(2, 2, 2);
+    public static edu.wpi.first.math.Vector<N3> kSingleTagStdDevs = VecBuilder.fill(4, 4, 4);
     public static edu.wpi.first.math.Vector<N3> kMultiTagStdDevs = VecBuilder.fill(1, 1, 1);
     public static edu.wpi.first.math.Vector<N3> odoStdDEvs = VecBuilder.fill(.2, .2, .2);
     public static double odometryUpdateFrequency = 250;

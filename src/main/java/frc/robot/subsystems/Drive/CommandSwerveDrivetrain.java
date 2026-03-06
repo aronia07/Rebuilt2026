@@ -103,9 +103,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         double ySpeed = getState().Speeds.vyMetersPerSecond;
         double rotSpeed = getState().Speeds.omegaRadiansPerSecond;
         Pose2d futurePose = turretPose.plus(
-            new Transform2d(new Translation2d(xSpeed, ySpeed).times(timeOfFlight),
-            new Rotation2d(rotSpeed).times(timeOfFlight))
+            new Transform2d(new Translation2d(-xSpeed, -ySpeed).times(timeOfFlight),
+            new Rotation2d(-rotSpeed).times(timeOfFlight))
         );
+        TheField.getObject("turret pose").setPose(turretPose);
         return futurePose;
     }
 
@@ -166,6 +167,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getXfromLocation(Pose2d target) {
         double xDistance;
+        Alliance allianceColor = DriverStation.getAlliance().get();
         if(allianceColor == Alliance.Red) {
             xDistance = Math.abs(target.getX() - getCurrentTurretPose().getX());
         } else {
@@ -176,6 +178,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getYfromLocation(Pose2d target) {
         double yDistance;
+        Alliance allianceColor = DriverStation.getAlliance().get();
         if(allianceColor == Alliance.Red) {
             yDistance = Math.abs(target.getY() - getCurrentTurretPose().getY());
         } else {
@@ -186,16 +189,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public double getXfromHub() {
         double xDistance;
+        Alliance allianceColor = DriverStation.getAlliance().get();
+
         if(allianceColor == Alliance.Red) {
-            xDistance = Math.abs(VisionConstants.RED_HUB_POSE.getX() - getCurrentTurretPose().getX());
+            xDistance = VisionConstants.RED_HUB_POSE.getX() - getCurrentTurretPose().getX();
         } else {
-            xDistance = Math.abs(VisionConstants.BLUE_HUB_POSE.getX() - getCurrentTurretPose().getX());
+            xDistance = VisionConstants.BLUE_HUB_POSE.getX() - getCurrentTurretPose().getX();
         }
         return xDistance;
     }
 
     public double getYfromHub() {
         double yDistance;
+        Alliance allianceColor = DriverStation.getAlliance().get();
+
         if(allianceColor == Alliance.Red) {
             yDistance = VisionConstants.RED_HUB_POSE.getY() - getCurrentTurretPose().getY();
         } else {
