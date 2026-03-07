@@ -190,7 +190,7 @@ public class RobotContainer {
     operator.b()
       .onTrue(new SequentialCommandGroup(
         new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TRENCH_SHOOT)),
-        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESET)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESETL)),
         // waitToShoot(),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT))))
       .onFalse(new ParallelCommandGroup(
@@ -341,14 +341,23 @@ public class RobotContainer {
       NamedCommands.registerCommand("FeederIdle", 
       new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE)));
 
-    NamedCommands.registerCommand("Auto Trench Shoot", 
+    NamedCommands.registerCommand("Auto Trench Shoot Left", 
       new SequentialCommandGroup(
         new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TRENCH_SHOOT)),
-        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESET)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESETL)),
         waitToShoot(),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT)),
-        wait(1.5),
-        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).withTimeout(3));
+        wait(1.0),
+        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).withTimeout(3.5));
+
+         NamedCommands.registerCommand("Auto Trench Shoot Right", 
+      new SequentialCommandGroup(
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TRENCH_SHOOT)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESETR)),
+        waitToShoot(),
+        new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT)),
+        wait(1.0),
+        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).withTimeout(3.5));
 
     NamedCommands.registerCommand("Aim Shoot", 
       new SequentialCommandGroup(

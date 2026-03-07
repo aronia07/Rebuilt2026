@@ -177,7 +177,8 @@ public final class Constants {
 
     public static double passAimPosition = 0;
     public static double hubPresetPosition;
-    public static double trenchPresetPosition = .51;
+    public static double trenchPresetPositionL = .52;
+    public static double trenchPresetPositionR = .49;
     public static double tolerance = 0.007;
 
     public static double[] turretPID = {51, 0, 0};
@@ -187,7 +188,8 @@ public final class Constants {
       IDLE,
       AIM_PASS,
       AIM_HUB,
-      TRENCH_PRESET,
+      TRENCH_PRESETL,
+      TRENCH_PRESETR,
       HUB_PRESET,
       TEST
       
@@ -196,7 +198,8 @@ public final class Constants {
       IDLING,
       PASS_AIMING,
       HUB_AIMING,
-      TRENCH_PRESETTING,
+      TRENCH_PRESETTINGL,
+      TRENCH_PRESETTINGR,
       HUB_PRESETTING,
       TESTING
     }

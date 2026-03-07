@@ -134,8 +134,10 @@ public class Turret extends SubsystemBase {
           yield SystemState.HUB_AIMING;
       case AIM_PASS:
         yield SystemState.PASS_AIMING;
-      case TRENCH_PRESET:
-        yield SystemState.TRENCH_PRESETTING;
+      case TRENCH_PRESETL:
+        yield SystemState.TRENCH_PRESETTINGL;
+      case TRENCH_PRESETR:
+        yield SystemState.TRENCH_PRESETTINGR;
       case HUB_PRESET:
         yield SystemState.HUB_PRESETTING;
       case TEST:
@@ -230,8 +232,11 @@ public class Turret extends SubsystemBase {
 
         position = target2;
         break;
-      case TRENCH_PRESETTING:
-        position = TurretConstants.trenchPresetPosition;
+      case TRENCH_PRESETTINGL:
+        position = TurretConstants.trenchPresetPositionL;
+        break;
+      case TRENCH_PRESETTINGR:
+        position = TurretConstants.trenchPresetPositionR;
         break;
       case HUB_PRESETTING:
         position = TurretConstants.hubPresetPosition;
