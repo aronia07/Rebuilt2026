@@ -17,6 +17,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "FeederIdle"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "RTrenchMid2"

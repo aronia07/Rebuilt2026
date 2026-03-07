@@ -113,8 +113,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
-    configureAutoCommands();
     configureNamedCommands();
+    configureAutoCommands();
   }
 
   /**
@@ -338,6 +338,8 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Retract Hood", 
       new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.RETRACT_AUTO)));
+      NamedCommands.registerCommand("FeederIdle", 
+      new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE)));
 
     NamedCommands.registerCommand("Auto Trench Shoot", 
       new SequentialCommandGroup(
