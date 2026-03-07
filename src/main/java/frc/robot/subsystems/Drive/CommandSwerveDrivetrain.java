@@ -136,15 +136,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         } else if (whereToAim == "pass") {
             if(DriverStation.getAlliance().get() == Alliance.Red) {
                 if(getPose().getY() > 4.03) {
-                    aimingTarget = new Translation2d(15.5, 7);
+                    aimingTarget = VisionConstants.RED_PASS_SPOT_1;
                 } else {
-                    aimingTarget = new Translation2d(15.5, 1);
+                    aimingTarget = VisionConstants.RED_PASS_SPOT_2;
                 }
             } else {
                 if(getPose().getY() > 4.03) {
-                    aimingTarget = new Translation2d(1, 7);
+                    aimingTarget = VisionConstants.BLUE_PASS_SPOT_1;
                 } else {
-                    aimingTarget = new Translation2d(1, 1);
+                    aimingTarget = VisionConstants.BLUE_PASS_SPOT_2;
                 }
             }
         } else {
@@ -192,12 +192,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // velocity induced by robot rotation
         Translation2d rotationalVelocity =
             new Translation2d(
-                -omega * turretOffset.getY(),
-                omega * turretOffset.getX()
+                +omega * turretOffset.getX(),
+                -omega * turretOffset.getY()
             );
 
         Translation2d rotationalCorrection =
-            rotationalVelocity.times(timeOfFlight);
+            rotationalVelocity;
 
         // --- COMBINED CORRECTION ---
 
@@ -432,7 +432,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             var estStdDevs = vision.getEstimationStdDevs(estPose);
             super.addVisionMeasurement(
                     estPose,
-                    Utils.fpgaToCurrentTime(visionEst.get().timestampSeconds),
+                    Utils.fpgaToCurrentTime(visionEst2.get().timestampSeconds),
                     estStdDevs);
         } else if (visionEst.isPresent() && visionEst3.isPresent()) {
             var estPose = vision.getPoseFromCams13();
