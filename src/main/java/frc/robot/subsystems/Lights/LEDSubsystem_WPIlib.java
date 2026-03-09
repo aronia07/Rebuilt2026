@@ -100,13 +100,11 @@ public class LEDSubsystem_WPIlib extends SubsystemBase {
   }
 
   /**
-   * Resetting LED strip - LES set to solid black.
+   * Resetting LED strip - LED set to solid black.
    */
-  public void LED_Reset() {
-    stopTwinkle(LEDTarget.SIDES);
-    stopTwinkle(LEDTarget.SIGNAL);
-    runPattern(LEDTarget.SIDES, LEDPattern.solid(LightsConstants.GRBColors.get("black")), false);
-    runPattern(LEDTarget.SIGNAL, LEDPattern.solid(LightsConstants.GRBColors.get("black")), false);
+  public void LED_Reset(LEDTarget target) {
+    stopTwinkle(target);
+    runPattern(target, LEDPattern.solid(LightsConstants.GRBColors.get("black")), false);
   }
 
   /**

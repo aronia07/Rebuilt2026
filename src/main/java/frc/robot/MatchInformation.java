@@ -5,10 +5,12 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LightsConstants;
-import frc.robot.commands.Lights.WPIlib.*;
+import frc.robot.commands.Lights.WPIlib.SetBlinkingPattern;
+import frc.robot.commands.Lights.WPIlib.ResetLED;
+import frc.robot.subsystems.Lights.LEDSubsystem_WPIlib;
 
 public class MatchInformation extends SubsystemBase{
-    LEDSubsystem_WPIlib normalLights;
+    private final LEDSubsystem_WPIlib normalLights;
 
     // Match Phases
     public enum MatchPhase {
@@ -40,6 +42,7 @@ public class MatchInformation extends SubsystemBase{
     public static final double SHIFT_WARNING_THRESHOLD = 5;
     public boolean shift1Active;
     public boolean redInactiveFirst;
+    public boolean shiftWarning_advised;
     public boolean shiftWarning_active;
 
     // Flags
@@ -53,7 +56,7 @@ public class MatchInformation extends SubsystemBase{
     public double autoStartTimestamp;
 
     public MatchInformation(LEDSubsystem_WPIlib m_normalLights) {
-        this.normalLights = m_normalLights;
+        normalLights = m_normalLights;
         revertDefaultState();
     }
 
@@ -73,6 +76,7 @@ public class MatchInformation extends SubsystemBase{
         phase = MatchPhase.DISABLED;
         shiftTimeRemaining = 0;
         phaseElapsed = 0;
+        shiftWarning_active = false;
 
         hubActive = false;
         teleopShift = 0;
@@ -242,6 +246,14 @@ public class MatchInformation extends SubsystemBase{
 
         if (shiftTimeRemaining >= 25.0)
             shiftTimeRemaining = 0;
+
+        // Determine if warning should activate
+        shiftWarning_advised =
+                teleop &&
+                teleopShift > 0 &&
+                !endgame &&
+                shiftTimeRemaining > 0 &&
+                shiftTimeRemaining <= SHIFT_WARNING_THRESHOLD;
     }
 
     /** Update convenience flags based on current match state. ! Run after updating Driver Station info, timestamps, and hub logic. !
@@ -261,15 +273,31 @@ public class MatchInformation extends SubsystemBase{
      * Update shift warning lights based on remaining shift time.
      */
     public void updateShiftWarning() {
-        if (shiftTimeRemaining <= SHIFT_WARNING_THRESHOLD && !shiftWarning_active) {
+        if (shiftWarning_advised && !shiftWarning_active) {
+
             shiftWarning_active = true;
+
             if (hubActive) {
-                normalLights.LED_Blinking(LEDPattern.solid(LightsConstants.RBGColors.get("green")), autoStartTimestamp, SHIFT_WARNING_THRESHOLD);
+                new SetBlinkingPattern(
+                    normalLights,
+                    LEDSubsystem_WPIlib.LEDTarget.SIDES,
+                    LEDPattern.solid(LightsConstants.RBGColors.get("green")),
+                    0.5,
+                    0.5
+                ).schedule();
             } else {
-                normalLights.LED_Blinking(LEDPattern.solid(LightsConstants.RBGColors.get("red")), autoStartTimestamp, SHIFT_WARNING_THRESHOLD);
+                new SetBlinkingPattern(
+                    normalLights,
+                    LEDSubsystem_WPIlib.LEDTarget.SIDES,
+                    LEDPattern.solid(LightsConstants.RBGColors.get("red")),
+                    0.5,
+                    0.5
+                ).schedule();
             }
-        } else {
+        } 
+        else if (!shiftWarning_advised && shiftWarning_active) {
             shiftWarning_active = false;
+                new ResetLED(normalLights, LEDSubsystem_WPIlib.LEDTarget.SIDES).schedule();
         }
     }
 
