@@ -190,7 +190,33 @@ public class Turret extends SubsystemBase {
 
           position = target1;
         } else if (scoringZone == ScoringZone.NO_TRACK) {
-          position = 0;
+          zoneString = "hub";
+          double target1 = 0;
+          double currentTurretToRobotAngle1 = turretMotor.getPosition().getValueAsDouble();
+          //calculate robot angle relative to field
+          Rotation2d currentRobotAngle1 = drivetrain.getTurretPose().getRotation();
+          Rotation2d angleToHub1 = drivetrain.getSOTFTurretAngle(zoneString).getAngle();
+
+          // calculate desired angle of turret relative to hub
+          // double angleToHub = (Math.atan2(passSpot.getY(), passSpot.getX()));
+
+          // calculate desired angle of turret relative to robot
+          Rotation2d desiredTurretAngle1 = (angleToHub1).minus(currentRobotAngle1);
+          // convert to rotations
+          double convertedTurretAngle1 = desiredTurretAngle1.getDegrees()/360;
+          
+          // compute shortest delta between branches
+          double delta1 = convertedTurretAngle1 - (currentTurretToRobotAngle1);
+          delta1 = Math.IEEEremainder(delta1, 1.0);
+
+          // now apply
+          target1 = currentTurretToRobotAngle1 + delta1;
+
+          // now enforce mechanical limits with wrap only if truly needed
+          while (target1 > CCWlimit) target1 -= 1.0;
+          while (target1 < CWLimit) target1 += 1.0;
+
+          position = target1;
         } else {
           zoneString = "pass";
           double target1 = 0;
