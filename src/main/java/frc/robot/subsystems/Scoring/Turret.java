@@ -172,14 +172,17 @@ public class Turret extends SubsystemBase {
         // leds.LED_ScrollPatternRelative(LEDPattern.gradient(GradientType.kContinuous, Color.kOrange, Color.kYellow), 2.5);
         double currentTurretToRobotAngle = turretMotor.getPosition().getValueAsDouble();
         //calculate robot angle relative to field
-        Rotation2d currentRobotAngle = drivetrain.getTurretPose().getRotation();
+        Rotation2d currentRobotAngle = drivetrain.getPose().getRotation();
         Rotation2d angleToHub = drivetrain.getSOTFTurretAngle("pass").getAngle();
 
         // calculate desired angle of turret relative to hub
         // double angleToHub = (Math.atan2(passSpot.getY(), passSpot.getX()));
 
         // calculate desired angle of turret relative to robot
-        Rotation2d desiredTurretAngle = (angleToHub).minus(currentRobotAngle);
+        Rotation2d desiredTurretAngle =
+            (angleToHub)
+                .minus(currentRobotAngle)
+                .plus(Rotation2d.fromDegrees(180));
         // convert to rotations
         double convertedTurretAngle = desiredTurretAngle.getDegrees()/360;
         
@@ -204,14 +207,17 @@ public class Turret extends SubsystemBase {
         // leds.LED_ScrollPatternRelative(LEDPattern.gradient(GradientType.kContinuous, Color.kCadetBlue, Color.kLightGreen), 2.5);
         double currentTurretToRobotAngle2 = turretMotor.getPosition().getValueAsDouble();
         //calculate robot angle relative to field
-        Rotation2d currentRobotAngle2 = drivetrain.getTurretPose().getRotation();
+        Rotation2d currentRobotAngle2 = drivetrain.getPose().getRotation();
         Rotation2d angleToHub2 = drivetrain.getSOTFTurretAngle("hub").getAngle();
 
         // calculate desired angle of turret relative to hub
         // double angleToHub2 = (Math.atan2(drivetrain.getYfromHub(), drivetrain.getXfromHub()));
 
         // calculate desired angle of turret relative to robot
-        Rotation2d desiredTurretAngle2 = (angleToHub2).minus(currentRobotAngle2);
+        Rotation2d desiredTurretAngle2 =
+            (angleToHub2)
+                .minus(currentRobotAngle2)
+                .plus(Rotation2d.fromDegrees(180));
         // Rotation2d desiredTurretAngle2 = currentRobotAngle2;
         // convert to rotations
         double convertedTurretAngle2 = desiredTurretAngle2.getDegrees()/360;

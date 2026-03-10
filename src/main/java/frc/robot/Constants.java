@@ -53,8 +53,8 @@ public final class Constants {
         new Point(2, 0),
         new Point(3, 3),
         new Point(4, 5.5),
-        new Point(5, 6.3),
-        new Point(6, 7.5)
+        new Point(5, 6), // 6.3
+        new Point(6, 7) //7.5
       ),
        2);
     
@@ -178,8 +178,8 @@ public final class Constants {
     public static double passAimPosition = 0;
     public static double hubPresetPosition;
     public static double trenchPresetPositionL = .52;
-    public static double trenchPresetPositionR = .49;
-    public static double tolerance = 0.007;
+    public static double trenchPresetPositionR = .50;
+    public static double tolerance = 0.01;  //0.007
 
     public static double[] turretPID = {51, 0, 0};
     public static double[] turretSVA = {0, 0, 0};
@@ -351,16 +351,16 @@ public final class Constants {
     public static Translation2d BLUE_HUB_POSE =
       new Translation2d(4.62, 4.03); //was 4.03
     public static Translation2d RED_HUB_POSE =
-      new Translation2d(11.92, 4.03); //was 4.03
+      new Translation2d(12, 3.85); //was 11.92, 4.03
 
     public static Translation2d BLUE_PASS_SPOT_1 = 
       new Translation2d(1, 1);
     public static Translation2d BLUE_PASS_SPOT_2 = 
       new Translation2d(1, 7);
     public static Translation2d RED_PASS_SPOT_1 = 
-      new Translation2d(15.5, 7);
+      new Translation2d(14.5, 7); //15.5
     public static Translation2d RED_PASS_SPOT_2 = 
-      new Translation2d(15.5, 1);
+      new Translation2d(14.5, 1); //15.5
 
     public static double bumperToBumper; // inches
 

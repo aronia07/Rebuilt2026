@@ -182,22 +182,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Translation2d translationalCorrection =
             robotVelocity.times(timeOfFlight);
 
-        // --- ROTATIONAL SOTF CORRECTION ---
+       // --- ROTATIONAL SOTF CORRECTION ---
 
-        double omega = fieldSpeeds.omegaRadiansPerSecond;
+double omega = fieldSpeeds.omegaRadiansPerSecond;
 
-        Translation2d turretOffset =
-            VisionConstants.turretToCenter.getTranslation();
+Translation2d turretOffset =
+    turretPose.getTranslation().minus(getPose().getTranslation());
 
-        // velocity induced by robot rotation
-        Translation2d rotationalVelocity =
-            new Translation2d(
-                +omega * turretOffset.getX(),
-                -omega * turretOffset.getY()
-            );
+Translation2d rotationalVelocity =
+    new Translation2d(
+        -omega * turretOffset.getY(),
+         omega * turretOffset.getX()
+    );
 
-        Translation2d rotationalCorrection =
-            rotationalVelocity;
+Translation2d rotationalCorrection =
+    rotationalVelocity.times(timeOfFlight);
 
         // --- COMBINED CORRECTION ---
 

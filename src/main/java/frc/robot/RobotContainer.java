@@ -50,6 +50,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -221,7 +222,11 @@ public class RobotContainer {
           new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.PASS_SHOOT)),
           new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.AIM_PASS)),
           // waitToShoot(),
-          new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT))
+           new ConditionalCommand(
+            new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE)),
+            new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT)),
+            () -> drivetrain.getPose().getY() > 3.47 && drivetrain.getPose().getY() < 4.53
+        )
       ))
       .onFalse(new ParallelCommandGroup(
         new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)),
@@ -347,8 +352,8 @@ public class RobotContainer {
         new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESETL)),
         waitToShoot(),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT)),
-        wait(1.0),
-        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).withTimeout(3.5));
+        wait(2.0),
+        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).withTimeout(6.5));
 
          NamedCommands.registerCommand("Auto Trench Shoot Right", 
       new SequentialCommandGroup(
@@ -356,8 +361,8 @@ public class RobotContainer {
         new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESETR)),
         waitToShoot(),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT)),
-        wait(1.0),
-        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).withTimeout(3.5));
+        wait(2.0),
+        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).withTimeout(6.5));
 
     NamedCommands.registerCommand("Aim Shoot", 
       new SequentialCommandGroup(

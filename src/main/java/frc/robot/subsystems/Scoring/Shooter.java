@@ -71,8 +71,8 @@ public class Shooter extends SubsystemBase {
     /* SETUP CONFIG */
     
     // CURRENT LIMITS
-    hoodMotorConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.SupplyCurrentLimit;
-    hoodMotorConfig.CurrentLimits.StatorCurrentLimit = ShooterConstants.StatorCurrentLimit;
+    hoodMotorConfig.CurrentLimits.SupplyCurrentLimit = 15;
+    hoodMotorConfig.CurrentLimits.StatorCurrentLimit = 15;
     shooterMotor2Config.CurrentLimits.SupplyCurrentLimit = ShooterConstants.SupplyCurrentLimit;
     shooterMotor2Config.CurrentLimits.StatorCurrentLimit = ShooterConstants.StatorCurrentLimit;
     shooterMotor1Config.CurrentLimits.SupplyCurrentLimit = ShooterConstants.SupplyCurrentLimit;
@@ -215,38 +215,25 @@ public class Shooter extends SubsystemBase {
         position = 5.5;
         break;
       case HUB_SHOOTING:
-        motorspeed = ShooterConstants.shooterSpeedInterpolation
-          .getPrediction(
-            drivetrain.getCurrentTurretPose().getTranslation().getDistance(drivetrain.getHub()));
-        position = ShooterConstants.hoodAngleInterpolation
-          .getPrediction(
-            drivetrain.getCurrentTurretPose().getTranslation().getDistance(drivetrain.getHub()));
-        break;
+    Translation2d correctedVector = drivetrain.getSOTFTurretAngle("hub");
+    double correctedDistance = correctedVector.getNorm();
+
+    motorspeed = ShooterConstants.shooterSpeedInterpolation
+        .getPrediction(correctedDistance);
+
+    position = ShooterConstants.hoodAngleInterpolation
+        .getPrediction(correctedDistance);
+    break;
       case PASS_SHOOTING:
-        //determine passing spot
-        Translation2d passSpot;
-        if(DriverStation.getAlliance().get() == Alliance.Red) {
-                if(drivetrain.getPose().getY() > 4.03) {
-                    passSpot = VisionConstants.RED_PASS_SPOT_1;
-                } else {
-                    passSpot = VisionConstants.RED_PASS_SPOT_2;
-                }
-            } else {
-                if(drivetrain.getPose().getY() > 4.03) {
-                    passSpot = VisionConstants.BLUE_PASS_SPOT_1;
-                } else {
-                    passSpot = VisionConstants.BLUE_PASS_SPOT_2;
-                }
-            }
-        // use distance to passing spot for interpolation
-        motorspeed = ShooterConstants.shooterSpeedInterpolation
-          .getPrediction(
-            drivetrain.getCurrentTurretPose().getTranslation().getDistance(passSpot));
-        
-        position = ShooterConstants.hoodAngleInterpolation
-          .getPrediction(
-            drivetrain.getCurrentTurretPose().getTranslation().getDistance(passSpot));
-        break;
+         Translation2d correctedVector2 = drivetrain.getSOTFTurretAngle("pass");
+    double correctedDistance2 = correctedVector2.getNorm();
+
+    motorspeed = ShooterConstants.shooterSpeedInterpolation
+        .getPrediction(correctedDistance2);
+
+    position = ShooterConstants.hoodAngleInterpolation
+        .getPrediction(correctedDistance2);
+    break;
       case HOMING:
         position = -.1;
         if (hoodMotor.getSupplyCurrent().getValueAsDouble() >= ShooterConstants.homingThreshold) {
