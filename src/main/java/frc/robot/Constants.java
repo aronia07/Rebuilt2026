@@ -45,7 +45,7 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    public static double activeWaitingSpeed;
+    public static double activeWaitingSpeed = 30;
     public static double inactiveWaitingSpeed;
     public static PolynomialRegression hoodAngleInterpolation = 
     new PolynomialRegression(
@@ -53,8 +53,8 @@ public final class Constants {
         new Point(2, 0),
         new Point(3, 3),
         new Point(4, 5.5),
-        new Point(5, 6.3),
-        new Point(6, 7.5)
+        new Point(5, 6), // 6.3
+        new Point(6, 7) //7.5
       ),
        2);
     
@@ -178,14 +178,15 @@ public final class Constants {
     public static double passAimPosition = 0;
     public static double hubPresetPosition;
     public static double trenchPresetPositionL = .52;
-    public static double trenchPresetPositionR = .49;
-    public static double tolerance = 0.007;
+    public static double trenchPresetPositionR = .50;
+    public static double tolerance = 0.01;  //0.007
 
     public static double[] turretPID = {51, 0, 0};
     public static double[] turretSVA = {0, 0, 0};
 
     public enum TurretWantedState {
       IDLE,
+      IDLE_AIM,
       AIM_PASS,
       AIM_HUB,
       TRENCH_PRESETL,
@@ -196,6 +197,7 @@ public final class Constants {
     }
     public enum SystemState {
       IDLING,
+      IDLE_AIMING,
       PASS_AIMING,
       HUB_AIMING,
       TRENCH_PRESETTINGL,
@@ -217,7 +219,7 @@ public final class Constants {
     public static int towerMotorID = 41;
     public static int spindexerMotorID = 40;
 
-    public static double feederIntakeSpeed;
+    public static double feederIntakeSpeed = 0;
     public static double feederShootSpeed = 0.8;
     
     public static double[] feederPID = {0, 0, 0};
@@ -227,12 +229,14 @@ public final class Constants {
       IDLE,
       INTAKE,
       SHOOT,
+      PASS,
       FEEDTEST
     }
     public enum SystemState {
       IDLING,
       INTAKING,
       SHOOTING,
+      PASSING,
       FEEDTESTING
     }
   }
@@ -351,16 +355,16 @@ public final class Constants {
     public static Translation2d BLUE_HUB_POSE =
       new Translation2d(4.62, 4.03); //was 4.03
     public static Translation2d RED_HUB_POSE =
-      new Translation2d(11.92, 4.03); //was 4.03
+      new Translation2d(12, 3.85); //was 11.92, 4.03
 
     public static Translation2d BLUE_PASS_SPOT_1 = 
       new Translation2d(1, 1);
     public static Translation2d BLUE_PASS_SPOT_2 = 
       new Translation2d(1, 7);
     public static Translation2d RED_PASS_SPOT_1 = 
-      new Translation2d(15.5, 7);
+      new Translation2d(14.5, 7); //15.5
     public static Translation2d RED_PASS_SPOT_2 = 
-      new Translation2d(15.5, 1);
+      new Translation2d(14.5, 1); //15.5
 
     public static double bumperToBumper; // inches
 
@@ -406,5 +410,17 @@ public final class Constants {
     public static edu.wpi.first.math.Vector<N3> kMultiTagStdDevs = VecBuilder.fill(1, 1, 1);
     public static edu.wpi.first.math.Vector<N3> odoStdDEvs = VecBuilder.fill(.2, .2, .05);
     public static double odometryUpdateFrequency = 250;
+  }
+
+  public static class FieldConstants {
+    public enum ScoringZone {
+      RED_PASSING_1,
+      RED_PASSING_2,
+      BLUE_PASSING_1,
+      BLUE_PASSING_2,
+      RED_HUB,
+      BLUE_HUB,
+      NO_TRACK
+    }
   }
 }

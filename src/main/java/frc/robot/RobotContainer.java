@@ -49,6 +49,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -65,14 +67,14 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final LEDSubsystem_WPIlib normalLights = new LEDSubsystem_WPIlib();
+  public final LEDSubsystem_WPIlib normalLights = new LEDSubsystem_WPIlib();
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-  private final Intake intake = new Intake();
-  private final Turret turret = new Turret(drivetrain, normalLights);
-  private final Shooter shooter = new Shooter(drivetrain);
-    private final Feeder feeder = new Feeder(turret, shooter);
+  public final Intake intake = new Intake();
+  public final Turret turret = new Turret(drivetrain, normalLights);
+  public final Shooter shooter = new Shooter(drivetrain);
+  public final Feeder feeder = new Feeder(turret, shooter, drivetrain);
   // private final Vision vision = new Vision();
-  private final MatchInformation matchInformation = new MatchInformation(normalLights);
+  public final MatchInformation matchInformation = new MatchInformation(normalLights);
   public SendableChooser<Command> sendableChooser = new SendableChooser<>();
   
 
@@ -99,7 +101,7 @@ public class RobotContainer {
                         .withDeadband(MaxSpeed * 0.1)
                         .withRotationalDeadband(MaxAngularRate * 0.1)
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                        .withHeadingPID(6, 0, 0);
+                        .withHeadingPID(5, 0, 0);
 
   // triggers
   // Trigger activeHubWarning = new Trigger(() -> matchInformation.shiftWarning_active == true);
@@ -169,7 +171,6 @@ public class RobotContainer {
     driver.rightBumper()
       .onTrue(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.INTAKE)))
       .onFalse(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.IDLE)));
-    //retract
     driver.leftBumper()
       .onTrue(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT)))
       .onFalse(new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.IDLE)));
@@ -193,8 +194,8 @@ public class RobotContainer {
         // waitToShoot(),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT))))
       .onFalse(new ParallelCommandGroup(
-        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)),
-        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE)),
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.WAIT)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE_AIM)),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE))));
     //agitation manual
     operator.leftTrigger()
@@ -211,8 +212,8 @@ public class RobotContainer {
           new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT)))
       )
       .onFalse(new ParallelCommandGroup(
-        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)),
-        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE)),
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.WAIT)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE_AIM)),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE))));
     // passing
     operator.rightBumper()
@@ -223,8 +224,8 @@ public class RobotContainer {
           new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT))
       ))
       .onFalse(new ParallelCommandGroup(
-        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.IDLE)),
-        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE)),
+        new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.WAIT)),
+        new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.IDLE_AIM)),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE))));
 
     /* CONDITIONAL CONTROLS */
@@ -336,7 +337,8 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Retract Hood", 
       new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.RETRACT_AUTO)));
-      NamedCommands.registerCommand("FeederIdle", 
+
+    NamedCommands.registerCommand("FeederIdle", 
       new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.IDLE)));
 
     NamedCommands.registerCommand("Auto Trench Shoot Left", 
@@ -345,17 +347,17 @@ public class RobotContainer {
         new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESETL)),
         waitToShoot(),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT)),
-        wait(1.0),
-        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).withTimeout(3.5));
+        wait(2.0),
+        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).alongWith(wait(6.5)));
 
-         NamedCommands.registerCommand("Auto Trench Shoot Right", 
+    NamedCommands.registerCommand("Auto Trench Shoot Right", 
       new SequentialCommandGroup(
         new InstantCommand(() -> shooter.setWantedShooterState(ShooterWantedState.TRENCH_SHOOT)),
         new InstantCommand(() -> turret.setWantedTurretState(TurretWantedState.TRENCH_PRESETR)),
         waitToShoot(),
         new InstantCommand(() -> feeder.setWantedFeederState(FeederWantedState.SHOOT)),
-        wait(1.0),
-        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).withTimeout(3.5));
+        wait(2.0),
+        new InstantCommand(() -> intake.setWantedIntakeState(IntakeWantedState.RETRACT))).alongWith(wait(6.5)));
 
     NamedCommands.registerCommand("Aim Shoot", 
       new SequentialCommandGroup(

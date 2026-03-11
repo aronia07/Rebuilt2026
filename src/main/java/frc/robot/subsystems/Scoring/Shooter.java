@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.Scoring;
 
+import java.math.MathContext;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -18,6 +20,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,6 +29,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants.ScoringZone;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.ShooterConstants.ShooterWantedState;
@@ -71,8 +75,8 @@ public class Shooter extends SubsystemBase {
     /* SETUP CONFIG */
     
     // CURRENT LIMITS
-    hoodMotorConfig.CurrentLimits.SupplyCurrentLimit = ShooterConstants.SupplyCurrentLimit;
-    hoodMotorConfig.CurrentLimits.StatorCurrentLimit = ShooterConstants.StatorCurrentLimit;
+    hoodMotorConfig.CurrentLimits.SupplyCurrentLimit = 15;
+    hoodMotorConfig.CurrentLimits.StatorCurrentLimit = 15;
     shooterMotor2Config.CurrentLimits.SupplyCurrentLimit = ShooterConstants.SupplyCurrentLimit;
     shooterMotor2Config.CurrentLimits.StatorCurrentLimit = ShooterConstants.StatorCurrentLimit;
     shooterMotor1Config.CurrentLimits.SupplyCurrentLimit = ShooterConstants.SupplyCurrentLimit;
@@ -179,7 +183,7 @@ public class Shooter extends SubsystemBase {
         //   }
         // }
       case TRENCH_SHOOT:
-        yield systemState.TRENCH_SHOOTING;
+        yield SystemState.TRENCH_SHOOTING;
       case PASS_SHOOT:
         yield SystemState.PASS_SHOOTING;
       case HUB_SHOOT:
@@ -215,37 +219,28 @@ public class Shooter extends SubsystemBase {
         position = 5.5;
         break;
       case HUB_SHOOTING:
+        Translation2d correctedVector = drivetrain.getSOTFTurretAngle("hub");
+        double correctedDistance = correctedVector.getNorm();
+
         motorspeed = ShooterConstants.shooterSpeedInterpolation
-          .getPrediction(
-            drivetrain.getCurrentTurretPose().getTranslation().getDistance(drivetrain.getHub()));
-        position = ShooterConstants.hoodAngleInterpolation
-          .getPrediction(
-            drivetrain.getCurrentTurretPose().getTranslation().getDistance(drivetrain.getHub()));
+            .getPrediction(correctedDistance);
+
+        position = MathUtil.clamp(
+          ShooterConstants.hoodAngleInterpolation.getPrediction(correctedDistance), 
+          -0.5, 
+          8);
         break;
       case PASS_SHOOTING:
-        //determine passing spot
-        Translation2d passSpot;
-        if(DriverStation.getAlliance().get() == Alliance.Red) {
-                if(drivetrain.getPose().getY() > 4.03) {
-                    passSpot = VisionConstants.RED_PASS_SPOT_1;
-                } else {
-                    passSpot = VisionConstants.RED_PASS_SPOT_2;
-                }
-            } else {
-                if(drivetrain.getPose().getY() > 4.03) {
-                    passSpot = VisionConstants.BLUE_PASS_SPOT_1;
-                } else {
-                    passSpot = VisionConstants.BLUE_PASS_SPOT_2;
-                }
-            }
-        // use distance to passing spot for interpolation
+        Translation2d correctedVector2 = drivetrain.getSOTFTurretAngle("pass");
+        double correctedDistance2 = correctedVector2.getNorm();
+
+        position = MathUtil.clamp(
+          ShooterConstants.hoodAngleInterpolation.getPrediction(correctedDistance2), 
+          -.5, 
+          8);
+
         motorspeed = ShooterConstants.shooterSpeedInterpolation
-          .getPrediction(
-            drivetrain.getCurrentTurretPose().getTranslation().getDistance(passSpot));
-        
-        position = ShooterConstants.hoodAngleInterpolation
-          .getPrediction(
-            drivetrain.getCurrentTurretPose().getTranslation().getDistance(passSpot));
+            .getPrediction(correctedDistance2);
         break;
       case HOMING:
         position = -.1;
